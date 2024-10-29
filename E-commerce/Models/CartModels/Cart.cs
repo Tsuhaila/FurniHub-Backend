@@ -8,8 +8,7 @@ namespace FurniHub.Models.CartModels
         public int Id { get; set; }
         [Required(ErrorMessage ="user id is required")]
         public int UserId { get; set; }
-        public virtual User 
-            User { get; set; }
+        public virtual User User { get; set; }
         public virtual List<CartItem> CartItems { get; set; }
 
 

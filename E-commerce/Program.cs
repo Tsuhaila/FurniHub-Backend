@@ -4,6 +4,7 @@ using FurniHub.Services.AuthServices;
 using FurniHub.Services.CartServices;
 using FurniHub.Services.CategoryServices;
 using FurniHub.Services.JwtServices;
+using FurniHub.Services.OrderServices;
 using FurniHub.Services.ProductServices;
 using FurniHub.Services.UserServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,6 +33,7 @@ namespace FurniHub
             builder.Services.AddScoped<IProductService,ProductService>();
             builder.Services.AddScoped<ICartService,CartService>();
             builder.Services.AddScoped<IJwtService, JwtService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
 
             builder.Services.AddAuthentication(options =>
             {

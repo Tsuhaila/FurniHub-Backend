@@ -3,6 +3,7 @@ using FurniHub.Models.Categories;
 using Microsoft.EntityFrameworkCore;
 using FurniHub.Models.ProductModels;
 using FurniHub.Models.CartModels;
+using FurniHub.Models.OrderModels;
 
 namespace FurniHub
 {
@@ -13,6 +14,9 @@ namespace FurniHub
         public DbSet<Product> Products { get; set; }
         public DbSet<Cart> Cart { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Order> Order { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+
         
 
         private readonly IConfiguration _configuration;
@@ -66,6 +70,25 @@ namespace FurniHub
                 .HasOne(c=>c.Product)
                 .WithMany(p=>p.CartItems)
                 .HasForeignKey(c=>c.ProductId);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(o => o.userId);
+
+            modelBuilder.Entity<Order>()
+                .HasMany(o=>o.OrderItems)
+                .WithOne(oi=>oi.Order)
+                .HasForeignKey(oi=>oi.OrderId);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi=>oi.Product)
+                .WithMany()
+                .HasForeignKey(oi=>oi.ProductId);
+
+            modelBuilder.Entity<OrderItem>()
+                .Property(o=>o.TotalPrice)
+                .HasPrecision(20,2);
                 
             base.OnModelCreating(modelBuilder);
         }

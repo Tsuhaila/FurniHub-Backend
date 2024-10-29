@@ -5,6 +5,8 @@ using FurniHub.Models.Categories;
 using FurniHub.Models.Categories.DTOs;
 using FurniHub.Models.ProductModels;
 using FurniHub.Models.ProductModels.DTOs;
+using FurniHub.Models.OrderModels;
+using FurniHub.Models.OrderModels.DTOs;
 
 namespace FurniHub.Mapping
 {
@@ -18,6 +20,7 @@ namespace FurniHub.Mapping
             CreateMap<Category, CategoryResponseDTO>().ReverseMap();
             CreateMap<Product,ProductResponseDTO>().ReverseMap();
             CreateMap<Product,ProductRequestDTO>().ReverseMap();
+            CreateMap<Order,OrderResponseDTO>().ReverseMap();
             
             
         }

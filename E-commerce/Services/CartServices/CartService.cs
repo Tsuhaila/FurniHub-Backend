@@ -228,64 +228,7 @@ namespace FurniHub.Services.CartServices
         }
 
 
-        //public async Task<bool> DecreaseQuantity(string token, int productId)
-        //{
-        //    try
-        //    {
-        //        int userId = _jwtService.GetUserIdFromToken(token);
-
-        //        if (userId == 0) throw new Exception($"User is not valid with token {token}");
-
-
-        //        var user = await _context.Users
-        //            .Include(u => u.Cart)
-        //            .ThenInclude(c => c.CartItems)
-        //            .FirstOrDefaultAsync(u => u.Id == userId);
-        //        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
-
-        //        if (user != null && product != null)
-        //        {
-        //            var item = user.Cart.CartItems.FirstOrDefault(ci => ci.ProductId == productId);
-
-        //            if (item != null)
-        //            {
-        //                item.Quantity = item.Quantity >= 1 ? item.Quantity - 1 : item.Quantity;
-
-        //                if (item.Quantity == 0)
-        //                {
-        //                    _context.CartItems.Remove(item);
-        //                    await _context.SaveChangesAsync();
-        //                }
-
-        //                await _context.SaveChangesAsync();
-        //            }
-
-        //        }
-
-        //        if (user != null)
-
-
-        //            if (user != null && product != null)
-        //            {
-        //                var item = user.Cart.CartItems.FirstOrDefault(ci => ci.ProductId == productId);
-        //                if (item != null)
-        //                {
-        //                    item.Quantity--;
-        //                    await _context.SaveChangesAsync();
-
-
-        //                    return true;
-        //                }
-        //            }
-
-        //        return false;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await Console.Out.WriteLineAsync(ex.Message);
-        //        throw;
-        //    }
-        //}
+    
     }
 }
         
