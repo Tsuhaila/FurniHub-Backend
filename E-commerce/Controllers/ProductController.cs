@@ -14,7 +14,7 @@ namespace FurniHub.Controllers
         public ProductController(IProductService productService)
         {
             _productService = productService;
-            
+
         }
 
         [HttpGet("All-Products")]
@@ -30,12 +30,12 @@ namespace FurniHub.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-           
+
 
         }
 
         [HttpGet("Product-By/{id}")]
-        public async Task<IActionResult>GetProductById(int id)
+        public async Task<IActionResult> GetProductById(int id)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace FurniHub.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-           
+
         }
 
         [HttpGet("Products-By-CategoryId")]
@@ -66,7 +66,7 @@ namespace FurniHub.Controllers
         }
 
         [HttpGet("Products-By-CategoryName")]
-        public async Task<IActionResult>GetProductsByCategoryName(string categoryName)
+        public async Task<IActionResult> GetProductsByCategoryName(string categoryName)
         {
             try
             {
@@ -74,16 +74,16 @@ namespace FurniHub.Controllers
                 return Ok(products);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return StatusCode(500,ex.Message);
+                return StatusCode(500, ex.Message);
             }
-          
+
         }
 
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> AddProduct([FromForm]ProductRequestDTO productDTO,IFormFile image)
+        public async Task<IActionResult> AddProduct([FromForm] ProductRequestDTO productDTO, IFormFile image)
         {
             try
             {
@@ -94,10 +94,10 @@ namespace FurniHub.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-           
+
         }
 
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductRequestDTO productDTO, IFormFile image)
         {
@@ -112,9 +112,9 @@ namespace FurniHub.Controllers
             }
         }
 
-        [Authorize(Roles ="Admin")]
-        [HttpDelete("{id}")]       
-        public async Task<IActionResult>DeleteProduct(int id)
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
         {
             try
             {
@@ -122,11 +122,38 @@ namespace FurniHub.Controllers
                 return Ok("deleted succefully");
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                throw new Exception(ex.Message);    
+                throw new Exception(ex.Message);
             }
-           
+
+        }
+        [HttpGet("Search-products")]
+        public async Task<IActionResult> SearchProducts(string search)
+        {
+            try
+            {
+                var res = await _productService.SearchProducts(search);
+                return Ok(res);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpGet("paginated-products")]
+        public async Task<IActionResult> ProductPagination(int pageno,int size)
+        {
+            try
+            {
+                var res = await _productService.ProductPagination(pageno, size);
+                return Ok(res);
+
+            }catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

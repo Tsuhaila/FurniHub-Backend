@@ -226,8 +226,64 @@ namespace FurniHub.Services.ProductServices
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);                             
+            }          
+        }
+        public async Task<List<ProductResponseDTO>> SearchProducts(string searchTerm)
+        {
+            try
+            {
+                var products = await _context.Products.Include(p => p.Category).Where(p => p.Name.ToLower().Contains(searchTerm.ToLower())).ToListAsync();
+                if (products != null)
+                {
+                    return products.Select(p => new ProductResponseDTO
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Category = p.Category.Name,
+                        Description = p.Description,
+                        Image = _HostUrl + p.Image,
+                        Price = p.Price,
+                        OfferPrice = p.OfferPrice,
+
+                    }).ToList();
+
+                }
+                return new List<ProductResponseDTO>();
+
             }
-           
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task<List<ProductResponseDTO>>ProductPagination(int pageno,int size)
+        {
+            try
+            {
+                var products = await _context.Products.Include(p => p.Category)
+                    .Skip((pageno - 1) * size).Take(size).ToListAsync();
+                if (products != null)
+                {
+                    return products.Select(p => new ProductResponseDTO
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Category = p.Category.Name,
+                        Description = p.Description,
+                        Image = _HostUrl + p.Image,
+                        Price = p.Price,
+                        OfferPrice = p.OfferPrice,
+
+                    }).ToList();
+
+                }
+                return new List<ProductResponseDTO>();
+                    
+
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

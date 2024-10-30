@@ -11,5 +11,7 @@ namespace FurniHub.Services.ProductServices
         Task<string> CreateProduct(ProductRequestDTO productDTO,IFormFile image );
         Task<string> UpdateProduct(int id,ProductRequestDTO productDTO, IFormFile image );
         Task<string> DeleteProduct(int id);
+        Task<List<ProductResponseDTO>> SearchProducts(string searchTerm);
+        Task<List<ProductResponseDTO>> ProductPagination(int pageno, int size);
     }
 }
