@@ -51,5 +51,23 @@ namespace FurniHub.Services.UserServices
 
             }
         }
+        public async Task<string>BlockOrUnblockUser(int userId)
+        {
+            try
+            {
+                var user=await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return "user not found";
+                }
+                user.IsBlocked=!user.IsBlocked;
+                await _context.SaveChangesAsync();
+                return user.IsBlocked == true ? "user is blocked" : "user is unblocked";
+
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

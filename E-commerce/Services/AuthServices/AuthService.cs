@@ -59,6 +59,9 @@ namespace FurniHub.Services.AuthServices
             if(user==null || !validatePassword(userDTO.Password,user.Password))
             {
                 throw new Exception("invalid email or password");
+            }else if (user.IsBlocked == true)
+            {
+                throw new Exception("user is blocked");
             }
             var token = GenerateJwtToken(user);
             return token;

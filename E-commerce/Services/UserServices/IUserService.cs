@@ -6,5 +6,6 @@ namespace FurniHub.Services.UserServices
     {
         Task<List<OutPutUser>> GetUsers();
         Task<OutPutUser> GetUserById(int id);
+        Task<string> BlockOrUnblockUser(int userId);
     }
 }

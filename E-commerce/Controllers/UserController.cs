@@ -44,6 +44,19 @@ namespace FurniHub.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPatch("Block-Unblock")]
+        public async Task<IActionResult>BlockOrUnblockUser(int userId)
+        {
+            try
+            {
+                var res=await _userService.BlockOrUnblockUser(userId);
+                return Ok(res);
+
+            }catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
       
     }
 }

@@ -17,6 +17,7 @@ namespace FurniHub.Models.UserModels
         [MinLength(8,ErrorMessage ="password must be atleast 8 characters long.")]
         public string? Password { get; set; }
         public string? Role { get; set; }
+        public bool IsBlocked { get; set; }
         public virtual Cart? Cart { get; set; }
         public virtual List<Order>? Orders { get; set; }
         public virtual List<Wishlist> Wishlists { get; set; }

@@ -102,6 +102,10 @@ namespace FurniHub
                 .WithMany()
                 .HasForeignKey(w => w.ProductId);
 
+            modelBuilder.Entity<User>()
+                .Property(u => u.IsBlocked)
+                .HasDefaultValue(false);
+
             base.OnModelCreating(modelBuilder);
         }
 
