@@ -22,7 +22,7 @@ namespace FurniHub.Services.ProductServices
             _context = context;
             _mapper = mapper;
             _webHostEnvironment = webHostEnvironment;
-            _HostUrl = _configuration["HostUrl:url"];
+            _HostUrl = _configuration["HostUrl:Url"];
 
             
         }
@@ -167,13 +167,13 @@ namespace FurniHub.Services.ProductServices
             }
             if (image != null && image.Length > 0)
             {
-                string fileName = Guid.NewGuid().ToString() + Path.GetPathRoot(image.FileName);
-                string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "products", fileName);
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+                string filePath = Path.Combine(_webHostEnvironment.WebRootPath,"Images", "Products", fileName);
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await image.CopyToAsync(stream);
                 }
-                product.Image = "/images/products/" + fileName;
+                product.Image = "/Images/Products/" + fileName;
             }
             await _context.SaveChangesAsync();
             return true;
