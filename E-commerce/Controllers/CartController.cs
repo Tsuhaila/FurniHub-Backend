@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FurniHub.Controllers
 {
@@ -23,9 +24,8 @@ namespace FurniHub.Controllers
         {
             try
             {
-                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-                var jwtToken = token?.Split(' ')[1];               
-                var cartItems=await _cartService.GetCartItems(jwtToken);
+                int userId = GetUserId();             
+                var cartItems=await _cartService.GetCartItems(userId);
                 return Ok(cartItems);
 
             }
@@ -43,11 +43,8 @@ namespace FurniHub.Controllers
         {
             try
             {
-                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-                var splitToken = token?.Split(' ');
-                var jwtToken= splitToken?[1];
-
-                var res= await _cartService.AddToCart(jwtToken,productId);
+                int userId= GetUserId();
+                var res= await _cartService.AddToCart(userId,productId);
                 return Ok(res);
                 
             }
@@ -65,9 +62,8 @@ namespace FurniHub.Controllers
         {
             try
             {
-                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-                var jwtToken = token?.Split(' ')[1];
-                var res = await _cartService.RemoveFromCart(jwtToken, productId);
+                int userId= GetUserId();
+                var res = await _cartService.RemoveFromCart(userId, productId);
                 return Ok(res);
 
             }
@@ -85,9 +81,8 @@ namespace FurniHub.Controllers
         {
             try
             {
-                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-                var jwtToken = token?.Split(' ')[1];
-                var res = await _cartService.IncreaseQuantity(jwtToken, productId);
+                int userId= GetUserId();
+                var res = await _cartService.IncreaseQuantity(userId, productId);
                 return Ok(res);
             }catch(Exception ex)
             {
@@ -102,9 +97,8 @@ namespace FurniHub.Controllers
         {
             try
             {
-                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-                var jwtToken = token?.Split(' ')[1];
-                var res = await _cartService.DecreaseQuantity(jwtToken, productId);
+                int userId=GetUserId();
+                var res = await _cartService.DecreaseQuantity(userId, productId);
                 return Ok(res);
 
             }
@@ -112,8 +106,16 @@ namespace FurniHub.Controllers
             {
                 return StatusCode(500,ex.Message) ;
             }
-           
-
         }
+        private int GetUserId()
+        {
+            var strUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(strUserId, out var userId))
+            {
+                return userId;
+            }
+            throw new Exception("invalid user");
+        }
+
     }
 }

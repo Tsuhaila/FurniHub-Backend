@@ -4,7 +4,6 @@ using FurniHub.Middleware;
 using FurniHub.Services.AuthServices;
 using FurniHub.Services.CartServices;
 using FurniHub.Services.CategoryServices;
-using FurniHub.Services.JwtServices;
 using FurniHub.Services.OrderServices;
 using FurniHub.Services.ProductServices;
 using FurniHub.Services.UserServices;
@@ -34,7 +33,6 @@ namespace FurniHub
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IProductService,ProductService>();
             builder.Services.AddScoped<ICartService,CartService>();
-            builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IWishlistService,WishlistService>();
 

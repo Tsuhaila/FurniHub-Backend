@@ -4,6 +4,7 @@ using FurniHub.Services.OrderServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FurniHub.Controllers
 {
@@ -68,13 +69,12 @@ namespace FurniHub.Controllers
                 {
                     return BadRequest();
                 }
-                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-                var jwtToken = token?.Split(' ')[1];
-                if (jwtToken == null || orderRequestDTO == null)
+                int userId = GetUserId();
+                if (userId == 0 || orderRequestDTO == null)
                 {
                     return BadRequest();
                 }
-                var res =await  _orderService.CreateOrder(jwtToken, orderRequestDTO);
+                var res =await  _orderService.CreateOrder(userId, orderRequestDTO);
                 return Ok(res);
 
             }
@@ -107,9 +107,8 @@ namespace FurniHub.Controllers
         {
             try
             {
-                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-                var jwtToken = token?.Split(' ')[1];
-                var res = await _orderService.GetOrderDetails(jwtToken);
+                int userId=GetUserId();
+                var res = await _orderService.GetOrderDetails(userId);
                 return Ok(res);
 
             }
@@ -163,6 +162,15 @@ namespace FurniHub.Controllers
             {
                 return StatusCode(500,ex.Message);
             }
+        }
+        private int GetUserId()
+        {
+            var strUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(strUserId, out var userId))
+            {
+                return userId;
+            }
+            throw new Exception("invalid user");
         }
     }
 }

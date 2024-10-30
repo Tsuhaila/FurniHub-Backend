@@ -3,7 +3,6 @@ using FurniHub.Models.OrderModels;
 using FurniHub.Models.OrderModels.DTOs;
 using FurniHub.Models.PaymentModels;
 using FurniHub.Models.UserModels;
-using FurniHub.Services.JwtServices;
 using Microsoft.EntityFrameworkCore;
 using Razorpay.Api;
 
@@ -12,14 +11,12 @@ namespace FurniHub.Services.OrderServices
     public class OrderService:IOrderService
     {
         private readonly IConfiguration _configuration;
-        private readonly IJwtService _jwtService;
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly string _hostUrl;
-        public OrderService(IConfiguration configuration, IJwtService jwtService, ApplicationDbContext context,IMapper mapper)
+        public OrderService(IConfiguration configuration,ApplicationDbContext context,IMapper mapper)
         {
             _configuration = configuration;
-            _jwtService = jwtService;
             _context = context;
             _mapper = mapper;
             _hostUrl = _configuration["HostUrl:Url"];
@@ -71,15 +68,10 @@ namespace FurniHub.Services.OrderServices
             return true;
 
         }
-        public async Task<bool> CreateOrder(string token, OrderRequestDTO orderRequestDTO)
+        public async Task<bool> CreateOrder(int userId, OrderRequestDTO orderRequestDTO)
         {
             try
             {
-                int userId = _jwtService.GetUserIdFromToken(token);
-                if (userId == 0)
-                {
-                    throw new Exception("user is not valid");
-                }
                 if (orderRequestDTO.TransactionId == null && orderRequestDTO.OrderString == null)
                 {
                     return false;
@@ -144,15 +136,10 @@ namespace FurniHub.Services.OrderServices
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<List<OrderResponseDTO>> GetOrderDetails(string token)
+        public async Task<List<OrderResponseDTO>> GetOrderDetails(int userId)
         {
             try
             {
-                int userId = _jwtService.GetUserIdFromToken(token);
-                if (userId == 0)
-                {
-                    throw new Exception("user is not valid");
-                }
                 var orders = await _context.Order
                     .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)

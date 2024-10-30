@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FurniHub.Controllers
 {
@@ -21,9 +22,8 @@ namespace FurniHub.Controllers
         {
             try
             {
-                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-                var jwtToken = token?.Split(' ')[1];
-                var res = await _wishlistService.AddOrRemoveWishlist(jwtToken, productId);
+                var userId = GetUserId();
+                var res = await _wishlistService.AddOrRemoveWishlist(userId, productId);
                 return Ok(res);
 
             }
@@ -39,9 +39,8 @@ namespace FurniHub.Controllers
         {
             try
             {
-                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-                var jwtToken = token?.Split(' ')[1];
-                var res = await _wishlistService.GetWishlist(jwtToken);
+                int userId = GetUserId();
+                var res = await _wishlistService.GetWishlist(userId);
                 return Ok(res);
 
             }
@@ -49,6 +48,15 @@ namespace FurniHub.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
+        }
+        private int GetUserId()
+        {
+            var strUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(int.TryParse(strUserId,out var userId))
+            {
+                return userId;
+            }
+            throw new Exception("invalid user");
         }
 
 

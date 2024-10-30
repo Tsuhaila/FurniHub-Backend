@@ -1,7 +1,6 @@
 ﻿using FurniHub.Models.CartModels;
 using FurniHub.Models.CartModels.DTOs;
 using FurniHub.Models.ProductModels;
-using FurniHub.Services.JwtServices;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -9,28 +8,21 @@ namespace FurniHub.Services.CartServices
 {
     public class CartService : ICartService
     {
-        private readonly IJwtService _jwtService;
         private readonly ApplicationDbContext _context;
         private readonly string _HostUrl;
         private readonly IConfiguration _configuration;
-        public CartService(IJwtService jwtService, ApplicationDbContext context, IConfiguration configuration)
+        public CartService(ApplicationDbContext context, IConfiguration configuration)
         {
-            _jwtService = jwtService;
             _context = context;
             _configuration = configuration;
             _HostUrl = _configuration["HostUrl:Url"];
 
 
         }
-        public async Task<List<CartResponseDTO>> GetCartItems(string token)
+        public async Task<List<CartResponseDTO>> GetCartItems(int userId)
         {
             try
             {
-                int userId = _jwtService.GetUserIdFromToken(token);
-                if (userId == 0)
-                {
-                    throw new Exception("User with id doesn't exist !");
-                }
                 var user = await _context.Cart
                     .Include(c => c.CartItems)
                     .ThenInclude(ci => ci.Product)
@@ -62,13 +54,10 @@ namespace FurniHub.Services.CartServices
                 throw new Exception("something went wrong",ex);
             }
         }
-        public async Task<string> AddToCart(string token, int productId)
+        public async Task<string> AddToCart(int userId, int productId)
         {
             try
             {
-                int userId = _jwtService.GetUserIdFromToken(token);
-                if (userId == 0) throw new Exception("user not valid");
-
                 var user = await _context.Users
                     .Include(u => u.Cart)
                     .ThenInclude(c => c.CartItems)
@@ -118,15 +107,10 @@ namespace FurniHub.Services.CartServices
             }
         }
 
-        public async Task<string> RemoveFromCart(string token,int productId)
+        public async Task<string> RemoveFromCart(int userId,int productId)
         {
             try
             {
-                var userId = _jwtService.GetUserIdFromToken(token);
-                if (userId == 0)
-                {
-                    throw new Exception("user id is not valid !!");
-                }
                 var user = await _context.Users
                     .Include(u => u.Cart)
                     .ThenInclude(c => c.CartItems)
@@ -151,15 +135,10 @@ namespace FurniHub.Services.CartServices
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<string> IncreaseQuantity(string token,int productId)
+        public async Task<string> IncreaseQuantity(int userId,int productId)
         {
             try
             {
-                var userId = _jwtService.GetUserIdFromToken(token);
-                if (userId == 0)
-                {
-                    throw new Exception("A user with the current token is not found !");
-                }
                 var user = await _context.Users
                     .Include(u => u.Cart)
                     .ThenInclude(c => c.CartItems)
@@ -185,15 +164,10 @@ namespace FurniHub.Services.CartServices
             }        
         }
 
-        public async Task<string>DecreaseQuantity(string token,int productId)
+        public async Task<string>DecreaseQuantity(int userId,int productId)
         {
             try
             {
-                var userId = _jwtService.GetUserIdFromToken(token);
-                if (userId == 0)
-                {
-                    throw new Exception("A user with the current token is not found !");
-                }
                 var user = await _context.Users.Include(u => u.Cart).ThenInclude(c => c.CartItems).FirstOrDefaultAsync(u => u.Id == userId);
                 var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
                 if (user != null && product != null)

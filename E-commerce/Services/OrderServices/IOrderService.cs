@@ -7,9 +7,9 @@ namespace FurniHub.Services.OrderServices
     {
         Task<string> RazorOrderCreate(long price);
         bool RazorPayment(RazorPayDTO razorPayDTO);
-        Task<bool> CreateOrder(string token, OrderRequestDTO orderRequestDTO);
+        Task<bool> CreateOrder(int userId, OrderRequestDTO orderRequestDTO);
         Task<bool> UpdateOrderStatus(int orderId, AdminOrderResponseDTO orderDTO);
-        Task<List<OrderResponseDTO>> GetOrderDetails(string token);
+        Task<List<OrderResponseDTO>> GetOrderDetails(int userId);
         Task<List<AdminOrderResponseDTO>> GetOrderDetailsForAdmin();
         Task<int> TotalProductsPurchased();
         Task<Decimal> GetTotalRevenue();
