@@ -1,5 +1,6 @@
 
 using FurniHub.Mapping;
+using FurniHub.Middleware;
 using FurniHub.Services.AuthServices;
 using FurniHub.Services.CartServices;
 using FurniHub.Services.CategoryServices;
@@ -65,10 +66,11 @@ namespace FurniHub
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseMiddleware<JwtTokenMiddleware>();    
             app.UseStaticFiles();
 
             app.UseHttpsRedirection();
+
 
             app.UseAuthentication();
 

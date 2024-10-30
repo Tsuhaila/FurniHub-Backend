@@ -27,13 +27,35 @@ namespace FurniHub.Controllers
             try
             {
                 var token=await _authService.Login(userDTO);
-                return Ok(token);
+                var cookiesOption = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddHours(1)
+                };
+                Response.Cookies.Append("AuthToken",token,cookiesOption);
+                return Ok("loggined successfully");
 
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return Unauthorized(new { Message = "Login failed", Error = ex.Message });
 
+
+            }
+
+        }
+        [HttpDelete("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                Response.Cookies.Delete("AuthToken");
+                return Ok("Logged out successfully");
+            }catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
 
         }
