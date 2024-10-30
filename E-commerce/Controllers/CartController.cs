@@ -1,4 +1,5 @@
 ﻿using FurniHub.Services.CartServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,9 @@ namespace FurniHub.Controllers
             _cartService = cartService;
             
         }
-        [HttpGet]
+
+        [Authorize]
+        [HttpGet("All-Items")]
         public async Task<IActionResult>GetCartItems()
         {
             try
@@ -28,12 +31,14 @@ namespace FurniHub.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500,ex.Message);
 
             }
            
         }
-        [HttpPost]
+
+        [Authorize]
+        [HttpPost("Add-Cart/{productId}")]
         public async Task<IActionResult>AddToCart(int productId)
         {
             try
@@ -42,19 +47,20 @@ namespace FurniHub.Controllers
                 var splitToken = token?.Split(' ');
                 var jwtToken= splitToken?[1];
 
-               var res= await _cartService.AddToCart(jwtToken,productId);
-                return res ? Ok() : StatusCode(500, "An error occurred while incrementing quantity!");
+                var res= await _cartService.AddToCart(jwtToken,productId);
+                return Ok(res);
                 
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
 
             }
-          
-
+         
         }
-        [HttpDelete]
+
+        [Authorize]
+        [HttpDelete("Remove-cart/{productId}")]
         public async Task<IActionResult>RemoveFromCart(int productId)
         {
             try
@@ -62,16 +68,18 @@ namespace FurniHub.Controllers
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
                 var jwtToken = token?.Split(' ')[1];
                 var res = await _cartService.RemoveFromCart(jwtToken, productId);
-                return res ? Ok() : StatusCode(500,"failed to remove item");
+                return Ok(res);
 
             }
             catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
 
             
         }
+
+        [Authorize]
         [HttpPut("Increment_Quantity")]
         public async Task<IActionResult>IncreaseQuantity(int productId)
         {
@@ -80,13 +88,15 @@ namespace FurniHub.Controllers
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
                 var jwtToken = token?.Split(' ')[1];
                 var res = await _cartService.IncreaseQuantity(jwtToken, productId);
-                return res ? Ok() : StatusCode(500);
+                return Ok(res);
             }catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500,ex.Message);
             }
             
         }
+
+        [Authorize]
         [HttpPut("Decrement_Quantity")]
         public async Task<IActionResult>DecreaseQuantity(int productId)
         {
@@ -95,12 +105,12 @@ namespace FurniHub.Controllers
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
                 var jwtToken = token?.Split(' ')[1];
                 var res = await _cartService.DecreaseQuantity(jwtToken, productId);
-                return res ? Ok() : StatusCode(500);
+                return Ok(res);
 
             }
             catch(Exception ex)
             {
-                return BadRequest(ex.Message) ;
+                return StatusCode(500,ex.Message) ;
             }
            
 

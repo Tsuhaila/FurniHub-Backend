@@ -67,6 +67,7 @@ namespace FurniHub
                 app.UseSwaggerUI();
             }
             app.UseMiddleware<JwtTokenMiddleware>();    
+
             app.UseStaticFiles();
 
             app.UseHttpsRedirection();

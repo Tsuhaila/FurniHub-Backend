@@ -1,4 +1,5 @@
 ﻿using FurniHub.Services.WishlistServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,12 +15,15 @@ namespace FurniHub.Controllers
             _wishlistService = wishlistService;
             
         }
+        [Authorize]
         [HttpPost("Add-Remove-items")]
-        public async Task<IActionResult>AddOrRemoveItems(int userId,int productId)
+        public async Task<IActionResult>AddOrRemoveItems(int productId)
         {
             try
             {
-                var res = await _wishlistService.AddOrRemoveWishlist(userId, productId);
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var jwtToken = token?.Split(' ')[1];
+                var res = await _wishlistService.AddOrRemoveWishlist(jwtToken, productId);
                 return Ok(res);
 
             }
@@ -28,12 +32,16 @@ namespace FurniHub.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [Authorize]
         [HttpGet("Get-wishlist")]
-        public async Task<IActionResult> GetWishlist(int userId)
+        public async Task<IActionResult> GetWishlist()
         {
             try
             {
-                var res = await _wishlistService.GetWishlist(userId);
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var jwtToken = token?.Split(' ')[1];
+                var res = await _wishlistService.GetWishlist(jwtToken);
                 return Ok(res);
 
             }

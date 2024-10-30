@@ -144,30 +144,6 @@ namespace FurniHub.Services.OrderServices
                 throw new Exception(ex.Message);
             }
         }
-
-        public async Task<List<OrderResponseDTO>>GetOrders(int userId)
-        {
-            try
-            {
-                var order = await _context.Order
-                .Where(oi => oi.userId == userId)
-                .Include(o => o.OrderItems).ToListAsync();
-
-                if (order.Count > 0)
-                {
-                    return _mapper.Map<List<OrderResponseDTO>>(order);
-                }
-                return new List<OrderResponseDTO>();
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-               
-            }
-            
-        }
-       
         public async Task<List<OrderResponseDTO>> GetOrderDetails(string token)
         {
             try

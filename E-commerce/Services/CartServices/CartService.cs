@@ -62,7 +62,7 @@ namespace FurniHub.Services.CartServices
                 throw new Exception("something went wrong",ex);
             }
         }
-        public async Task<bool> AddToCart(string token, int productId)
+        public async Task<string> AddToCart(string token, int productId)
         {
             try
             {
@@ -108,17 +108,17 @@ namespace FurniHub.Services.CartServices
                    _context.CartItems.Add(cartItem);
                 }
                 await _context.SaveChangesAsync();
-                return true;
+                return "item added to cart";
 
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return false;
+                return "something went wrong";
             }
         }
 
-        public async Task<bool> RemoveFromCart(string token,int productId)
+        public async Task<string> RemoveFromCart(string token,int productId)
         {
             try
             {
@@ -140,21 +140,18 @@ namespace FurniHub.Services.CartServices
                     {
                         _context.CartItems.Remove(item);
                         await _context.SaveChangesAsync();
-                        return true;
+                        return "item removed from cart";
                     }
                    
                 }
-                return false;
-                throw new Exception($"No User or Product present with given id , ProductId:{productId} !");
+                return "something went wrong";
             }
             catch(Exception ex)
-            {
-                
-                return false;
-                throw new Exception("An exception occured while increasing the quantity of the product" + ex.Message);
+            {               
+                throw new Exception(ex.Message);
             }
         }
-        public async Task<bool> IncreaseQuantity(string token,int productId)
+        public async Task<string> IncreaseQuantity(string token,int productId)
         {
             try
             {
@@ -176,22 +173,19 @@ namespace FurniHub.Services.CartServices
                     {
                         item.Quantity++;
                         await _context.SaveChangesAsync();
-                        return true;
+                        return "item Quantity is incremented";
                     }
                     
                 }
-                return false;
-
+                return "something went wrong";
 
             }catch(Exception ex)
-            {
-                
-                throw new Exception("An exception occured while increasing the quantity of the product" + ex.Message);
-            }
-         
+            {                
+                throw new Exception(ex.Message);
+            }        
         }
 
-        public async Task<bool>DecreaseQuantity(string token,int productId)
+        public async Task<string>DecreaseQuantity(string token,int productId)
         {
             try
             {
@@ -215,20 +209,17 @@ namespace FurniHub.Services.CartServices
                             
                         }
                         await _context.SaveChangesAsync();
-                        return true;
+                        return "quantity of item is decreased";
                     }
                 }
-                return false;
+                return "something went wrong";
                     
 
             }catch(Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-        }
-
-
-    
+        }   
     }
 }
         

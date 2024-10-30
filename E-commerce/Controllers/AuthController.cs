@@ -1,5 +1,6 @@
 ﻿using FurniHub.Models.UserModels.DTOs;
 using FurniHub.Services.AuthServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,8 +19,16 @@ namespace FurniHub.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserRegisterDTO userDTO)
         {
-           var s=await _authService.Register(userDTO);
-            return Ok(s);
+            try
+            {
+                var res = await _authService.Register(userDTO);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+          
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserLoginDTO userDTO)
@@ -46,6 +55,8 @@ namespace FurniHub.Controllers
             }
 
         }
+
+        [Authorize]
         [HttpDelete("logout")]
         public async Task<IActionResult> Logout()
         {
@@ -53,6 +64,7 @@ namespace FurniHub.Controllers
             {
                 Response.Cookies.Delete("AuthToken");
                 return Ok("Logged out successfully");
+
             }catch(Exception ex)
             {
                 return StatusCode(500, ex.Message);

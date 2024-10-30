@@ -17,8 +17,8 @@ namespace FurniHub.Controllers
             
         }
         [Authorize(Roles ="admin")]
-        [HttpGet]
-        public async Task<IActionResult> GetUsers()
+        [HttpGet("All-Users")]
+        public async Task<IActionResult> GetAllUsers()
         {
             try
             {
@@ -28,10 +28,11 @@ namespace FurniHub.Controllers
             {
                 return BadRequest(ex.Message);
             }
-           
-         
+                   
         }
-        [HttpGet("{id}")]
+
+        [Authorize(Roles ="admin")]
+        [HttpGet("User/{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
             try
@@ -44,12 +45,14 @@ namespace FurniHub.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpPatch("Block-Unblock")]
-        public async Task<IActionResult>BlockOrUnblockUser(int userId)
+
+        [Authorize(Roles ="admin")]
+        [HttpPatch("Block-Unblock/{id}")]
+        public async Task<IActionResult>BlockOrUnblockUser(int id)
         {
             try
             {
-                var res=await _userService.BlockOrUnblockUser(userId);
+                var res=await _userService.BlockOrUnblockUser(id);
                 return Ok(res);
 
             }catch(Exception ex)

@@ -51,11 +51,11 @@ namespace FurniHub.Services.UserServices
 
             }
         }
-        public async Task<string>BlockOrUnblockUser(int userId)
+        public async Task<string>BlockOrUnblockUser(int id)
         {
             try
             {
-                var user=await _context.Users.FindAsync(userId);
+                var user=await _context.Users.FindAsync(id);
                 if (user == null)
                 {
                     return "user not found";

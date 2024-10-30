@@ -59,7 +59,7 @@ namespace FurniHub.Services.AuthServices
             if(user==null || !validatePassword(userDTO.Password,user.Password))
             {
                 throw new Exception("invalid email or password");
-            }else if (user.IsBlocked == true)
+            }else if (user.IsBlocked)
             {
                 throw new Exception("user is blocked");
             }
@@ -90,7 +90,5 @@ namespace FurniHub.Services.AuthServices
         {
             return BCrypt.Net.BCrypt.Verify(password, hashPassword);
         }
-           
-
     }
 }

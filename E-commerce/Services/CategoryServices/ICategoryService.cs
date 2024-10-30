@@ -4,9 +4,9 @@ namespace FurniHub.Services.CategoryServices
 {
     public interface ICategoryService
     {
-        public Task<bool>CreateCategory(CategoryRequestDTO categoryDTO);
-        public Task<bool>UpdateCategory(int id,CategoryRequestDTO categoryDTO);
         public Task<List<CategoryResponseDTO>> GetAllCategories();
-        public Task<bool> DeleteCategory(int id);
+        public Task<string>CreateCategory(CategoryRequestDTO categoryDTO);
+        public Task<string>UpdateCategory(int id,CategoryRequestDTO categoryDTO);
+        public Task<string> DeleteCategory(int id);
     }
 }

@@ -43,93 +43,114 @@ namespace FurniHub.Services.ProductServices
                     Quantity = p.Quantity
 
                 }).ToList();
-                
-
             }
 
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-                
-
-
         }
 
         public async Task<ProductResponseDTO> GetProductById(int id)
         {
-            var product = await _context.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
-            if (product != null)
+            try
             {
-                return new ProductResponseDTO
+                var product = await _context.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
+                if (product != null)
                 {
-                    Id = product.Id,
-                    Name = product.Name,
-                    Description = product.Description,
-                    Image = _HostUrl + product.Image,
-                    Category = product.Category.Name,
-                    Price = product.Price,
-                    OfferPrice = product.OfferPrice,
-                    Quantity = product.Quantity
+                    return new ProductResponseDTO
+                    {
+                        Id = product.Id,
+                        Name = product.Name,
+                        Description = product.Description,
+                        Image = _HostUrl + product.Image,
+                        Category = product.Category.Name,
+                        Price = product.Price,
+                        OfferPrice = product.OfferPrice,
+                        Quantity = product.Quantity
 
-                };
+                    };
+                }
+                return new ProductResponseDTO();
+
             }
-            return new ProductResponseDTO();        
-
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+           
         }
 
         public async Task<List<ProductResponseDTO>>GetProductsByCategory(int categoryId)
         {
-            var products = await _context.Products
-                .Include(p => p.Category)
-                .Where(p => p.CategoryId == categoryId)
-                .Select(p => new ProductResponseDTO
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Description = p.Description,
-                    Image = _HostUrl + p.Image,
-                    Category = p.Category.Name,
-                    Price = p.Price,
-                    OfferPrice = p.OfferPrice,
-                    Quantity = p.Quantity
-
-                }).ToListAsync();
-
-            if(products != null)
+            try
             {
-                return products;
+                var products = await _context.Products
+               .Include(p => p.Category)
+               .Where(p => p.CategoryId == categoryId)
+               .Select(p => new ProductResponseDTO
+               {
+                   Id = p.Id,
+                   Name = p.Name,
+                   Description = p.Description,
+                   Image = _HostUrl + p.Image,
+                   Category = p.Category.Name,
+                   Price = p.Price,
+                   OfferPrice = p.OfferPrice,
+                   Quantity = p.Quantity
+
+               }).ToListAsync();
+
+                if (products != null)
+                {
+                    return products;
+                }
+                return [];
+
             }
-            return [];
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+           
            
         }
         public async Task<List<ProductResponseDTO>> GetProductsByCategoryName(string categoryName)
         {
-            var products=await _context.Products
-                .Include(p=>p.Category)
-                .Where(c=>c.Category.Name == categoryName)
-                .Select(p=>new ProductResponseDTO
-                {
-                    
-                    Id = p.Id,
-                    Name = p.Name,
-                    Description = p.Description,
-                    Image = _HostUrl + p.Image,
-                    Category = p.Category.Name,
-                    Price = p.Price,
-                    OfferPrice = p.OfferPrice,
-                    Quantity = p.Quantity
-
-                }).ToListAsync();
-            if (products != null)
+            try
             {
-                return products;
+                var products = await _context.Products
+               .Include(p => p.Category)
+               .Where(c => c.Category.Name == categoryName)
+               .Select(p => new ProductResponseDTO
+               {
+
+                   Id = p.Id,
+                   Name = p.Name,
+                   Description = p.Description,
+                   Image = _HostUrl + p.Image,
+                   Category = p.Category.Name,
+                   Price = p.Price,
+                   OfferPrice = p.OfferPrice,
+                   Quantity = p.Quantity
+
+               }).ToListAsync();
+                if (products != null)
+                {
+                    return products;
+                }
+                return [];
+
             }
-            return [];
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+           
        
         }
         
-        public async Task<bool> CreateProduct(ProductRequestDTO productDTO,IFormFile image)
+        public async Task<string> CreateProduct(ProductRequestDTO productDTO,IFormFile image)
         {
             try
             {
@@ -148,44 +169,47 @@ namespace FurniHub.Services.ProductServices
                 product.Image = productImage;
                 await _context.Products.AddAsync(product);
                 await _context.SaveChangesAsync();
-                return true;
+                return "product added";
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<bool> UpdateProduct(int id, ProductRequestDTO productDTO, IFormFile image)
+        public async Task<string> UpdateProduct(int id, ProductRequestDTO productDTO, IFormFile image)
         {
-            var product=_context.Products.FirstOrDefault(x => x.Id == id);
-            if (product != null) {
-                product.Name = productDTO.Name;
-                product.Description = productDTO.Description;
-                product.Price = productDTO.Price;
-                product.OfferPrice = productDTO.OfferPrice;
-                product.CategoryId = productDTO.CategoryId;
-            }
-            if (image != null && image.Length > 0)
+            try
             {
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
-                string filePath = Path.Combine(_webHostEnvironment.WebRootPath,"Images", "Products", fileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                var product = _context.Products.FirstOrDefault(x => x.Id == id);
+                if (product != null)
                 {
-                    await image.CopyToAsync(stream);
+                    product.Name = productDTO.Name;
+                    product.Description = productDTO.Description;
+                    product.Price = productDTO.Price;
+                    product.OfferPrice = productDTO.OfferPrice;
+                    product.CategoryId = productDTO.CategoryId;
                 }
-                product.Image = "/Images/Products/" + fileName;
+                if (image != null && image.Length > 0)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+                    string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "Products", fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await image.CopyToAsync(stream);
+                    }
+                    product.Image = "/Images/Products/" + fileName;
+                }
+                await _context.SaveChangesAsync();
+                return "product updated";
+
             }
-            await _context.SaveChangesAsync();
-            return true;
-               
-
-
-
-
-
-
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
-        public async Task<bool> DeleteProduct(int id)
+        }
+           
+        public async Task<string> DeleteProduct(int id)
         {
             try
             {
@@ -196,14 +220,12 @@ namespace FurniHub.Services.ProductServices
 
                 }
                 await _context.SaveChangesAsync();
-                return true;
+                return "product deleted!!";
 
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                return false;
-                
+                throw new Exception(ex.Message);                             
             }
            
         }

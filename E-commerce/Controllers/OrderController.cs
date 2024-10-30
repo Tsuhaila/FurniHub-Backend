@@ -1,6 +1,7 @@
 ﻿using FurniHub.Models.OrderModels.DTOs;
 using FurniHub.Models.PaymentModels;
 using FurniHub.Services.OrderServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +17,8 @@ namespace FurniHub.Controllers
             _orderService = orderService;
             
         }
+
+        [Authorize]
         [HttpPost("Razor-Order-create")]
         public async Task<IActionResult> RazorOrderCreate(long price)
         {
@@ -34,7 +37,7 @@ namespace FurniHub.Controllers
             }
         }
 
-
+        [Authorize]
         [HttpPost("Razor-payment")]
         public IActionResult RazorPayment(RazorPayDTO razorPayDTO)
         {
@@ -55,7 +58,7 @@ namespace FurniHub.Controllers
         }
 
 
-       
+        [Authorize]
         [HttpPost("place-order")]
         public async Task<IActionResult> PlaceOrder(OrderRequestDTO orderRequestDTO)
         {
@@ -81,6 +84,7 @@ namespace FurniHub.Controllers
             }
         }
 
+        [Authorize(Roles ="Admin")]
         [HttpPut("update-order-status")]
         public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromBody] AdminOrderResponseDTO orderDTO)
         {
@@ -97,26 +101,7 @@ namespace FurniHub.Controllers
             }
         }
 
-        [HttpGet("Get-orders")]
-        public async Task<IActionResult> GetOrders(int userId)
-        {
-            try
-            {
-                if (userId == null)
-                {
-                    return BadRequest();
-
-                }
-                var res = await _orderService.GetOrders(userId);
-                return Ok(res);
-
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
-
+        [Authorize]
         [HttpGet("Get-order-details")]
         public async Task<IActionResult> GetOrderDetails()
         {
@@ -134,6 +119,7 @@ namespace FurniHub.Controllers
             }
         }
 
+        [Authorize(Roles ="Admin")]
         [HttpGet("get-order-details-for-Admin")]
         public async Task<IActionResult> GetOrderDetailsForAdmin()
         {
@@ -148,6 +134,7 @@ namespace FurniHub.Controllers
             }
         }
 
+        [Authorize(Roles ="Admin")]
         [HttpGet("Total-products-purchased")]
         public async Task<IActionResult> TotalProductsPurchased()
         {
@@ -163,6 +150,7 @@ namespace FurniHub.Controllers
             }
         }
 
+        [Authorize(Roles ="Admin")]
         [HttpGet("Get-Total-Revenue")]
         public async Task<IActionResult> GetTotalRevenue()
         {
@@ -176,15 +164,5 @@ namespace FurniHub.Controllers
                 return StatusCode(500,ex.Message);
             }
         }
-       
-
-       
-
-       
-        
-
-       
-            
-
     }
 }

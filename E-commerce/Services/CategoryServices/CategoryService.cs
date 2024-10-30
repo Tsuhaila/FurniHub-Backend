@@ -16,50 +16,70 @@ namespace FurniHub.Services.CategoryServices
             _mapper = mapper;
             
         }
-        public async Task<bool> CreateCategory(CategoryRequestDTO categoryDTO)
+        public async Task<string> CreateCategory(CategoryRequestDTO categoryDTO)
         {
             try
             {
                 var newCategory = _mapper.Map<Category>(categoryDTO);
                 await _context.Categories.AddAsync(newCategory);
                 await _context.SaveChangesAsync();
-                return true;
+                return "category added";
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                return false;
-            }
-
-           
-            
+                throw new Exception(ex.Message);
+            }           
         }
-        public async Task<bool> UpdateCategory(int id,CategoryRequestDTO categoryDTO)
+        public async Task<string> UpdateCategory(int id,CategoryRequestDTO categoryDTO)
         {
-            var product=_context.Categories.FirstOrDefault(c => c.Id == id);
-            if (product != null)
+            try
             {
-                product.Name = categoryDTO.Name;
-            }
-            await _context.SaveChangesAsync();
-            return true;
+                var product = _context.Categories.FirstOrDefault(c => c.Id == id);
+                if (product != null)
+                {
+                    product.Name = categoryDTO.Name;
+                }
+                await _context.SaveChangesAsync();
+                return "category updated";
 
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
         public async Task<List<CategoryResponseDTO>> GetAllCategories()
         {
-            var categories=await _context.Categories.ToListAsync();
-            var mappedCategories=_mapper.Map<List<CategoryResponseDTO>>(categories);
-            return mappedCategories;
-        }
-        public async Task<bool> DeleteCategory(int id)
-        {
-            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
-            if (category != null)
+            try
             {
-               _context.Categories.Remove(category);
+                var categories = await _context.Categories.ToListAsync();
+                var mappedCategories = _mapper.Map<List<CategoryResponseDTO>>(categories);
+                return mappedCategories;
+
             }
-            await _context.SaveChangesAsync();
-            return true;
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }          
+        }
+        public async Task<string> DeleteCategory(int id)
+        {
+            try
+            {
+                var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+                if (category != null)
+                {
+                    _context.Categories.Remove(category);
+                }
+                await _context.SaveChangesAsync();
+                return "category deleted";
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+           
         }
 
     }

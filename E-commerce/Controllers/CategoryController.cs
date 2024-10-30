@@ -1,5 +1,6 @@
 ﻿using FurniHub.Models.Categories.DTOs;
 using FurniHub.Services.CategoryServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,30 +16,67 @@ namespace FurniHub.Controllers
             _categoryService = categoryService;
             
         }
-        [HttpGet]
+        [HttpGet("All-Categories")]
         public async Task<IActionResult> GetAllCategories()
         {
-            var categories=await _categoryService.GetAllCategories();
-            return Ok(categories);
+            try
+            {
+                var categories = await _categoryService.GetAllCategories();
+                return Ok(categories);
 
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
-        [HttpPost]
-        public async Task<IActionResult>CreateCategory(CategoryRequestDTO categoryDTO)
+
+        [Authorize(Roles ="Admin")]
+        [HttpPost("Add-Category")]
+        public async Task<IActionResult>AddCategory(CategoryRequestDTO categoryDTO)
         {
-           await _categoryService.CreateCategory(categoryDTO);
-            return Ok("successfully created");
+            try
+            {
+                var res=await _categoryService.CreateCategory(categoryDTO);
+                return Ok(res);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
-        [HttpPut]
+
+        [Authorize(Roles ="Admin")]
+        [HttpPut("Update-Category/{id}")]
         public async Task<IActionResult>UpdateCategory(int id,CategoryRequestDTO categoryDTO)
         {
-            await _categoryService.UpdateCategory(id,categoryDTO);
-            return Ok("successfully updated");
+            try
+            {
+                var res=await _categoryService.UpdateCategory(id, categoryDTO);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
-        [HttpDelete]
+
+        [Authorize(Roles ="Admin")]
+        [HttpDelete("Delete-Category/{id}")]
         public async Task<IActionResult>DeleteCategory(int id)
         {
-            await _categoryService.DeleteCategory(id);
-            return Ok("successfully deleted");
+            try
+            {
+                var res=await _categoryService.DeleteCategory(id);
+                return Ok(res);
+
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500,ex.Message);
+            }
+           
         }
     }
 }
