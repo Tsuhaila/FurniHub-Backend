@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using FurniHub.Models.ProductModels;
 using FurniHub.Models.CartModels;
 using FurniHub.Models.OrderModels;
+using FurniHub.Models.WishlistModels;
 
 namespace FurniHub
 {
@@ -16,6 +17,7 @@ namespace FurniHub
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<Order> Order { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Wishlist> Wishlist { get; set; }
 
         
 
@@ -89,7 +91,17 @@ namespace FurniHub
             modelBuilder.Entity<OrderItem>()
                 .Property(o=>o.TotalPrice)
                 .HasPrecision(20,2);
-                
+
+            modelBuilder.Entity<Wishlist>()
+                .HasOne(w=>w.Users)
+                .WithMany(u=>u.Wishlists)
+                .HasForeignKey(w=>w.UserId);
+
+            modelBuilder.Entity<Wishlist>()
+                .HasOne(w => w.Products)
+                .WithMany()
+                .HasForeignKey(w => w.ProductId);
+
             base.OnModelCreating(modelBuilder);
         }
 

@@ -1,5 +1,6 @@
 ﻿using FurniHub.Models.CartModels;
 using FurniHub.Models.OrderModels;
+using FurniHub.Models.WishlistModels;
 using System.ComponentModel.DataAnnotations;
 
 namespace FurniHub.Models.UserModels
@@ -18,6 +19,7 @@ namespace FurniHub.Models.UserModels
         public string? Role { get; set; }
         public virtual Cart? Cart { get; set; }
         public virtual List<Order>? Orders { get; set; }
+        public virtual List<Wishlist> Wishlists { get; set; }
 
     }
 }

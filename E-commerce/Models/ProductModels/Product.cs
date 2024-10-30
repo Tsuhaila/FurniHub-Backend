@@ -1,5 +1,6 @@
 ﻿using FurniHub.Models.CartModels;
 using FurniHub.Models.Categories;
+using FurniHub.Models.WishlistModels;
 using System.ComponentModel.DataAnnotations;
 
 namespace FurniHub.Models.ProductModels
@@ -26,6 +27,7 @@ namespace FurniHub.Models.ProductModels
         public int Rating { get; set; }
         public virtual Category Category { get; set; }
         public virtual List<CartItem> CartItems { get; set; }
+        
 
         
     }
