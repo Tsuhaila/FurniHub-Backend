@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace FurniHub.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/cart")]
     [ApiController]
     public class CartController : ControllerBase
     {
@@ -18,8 +18,8 @@ namespace FurniHub.Controllers
             
         }
 
-        [Authorize]
-        [HttpGet("All-Items")]
+        [Authorize(Roles ="user")]
+        [HttpGet("items")]
         public async Task<IActionResult>GetCartItems()
         {
             try
@@ -37,15 +37,19 @@ namespace FurniHub.Controllers
            
         }
 
-        [Authorize]
-        [HttpPost("Add-Cart/{productId}")]
+        [Authorize(Roles ="user")]
+        [HttpPost("items/{productId}")]
         public async Task<IActionResult>AddToCart(int productId)
         {
             try
             {
                 int userId= GetUserId();
                 var res= await _cartService.AddToCart(userId,productId);
-                return Ok(res);
+                if (res == null)
+                {
+                    return NotFound($"Product with ID {productId} not found.");
+                }
+                return CreatedAtAction(nameof(GetCartItems), res);
                 
             }
             catch (Exception ex)
@@ -56,14 +60,18 @@ namespace FurniHub.Controllers
          
         }
 
-        [Authorize]
-        [HttpDelete("Remove-cart/{productId}")]
+        [Authorize(Roles = "user")]
+        [HttpDelete("items/{productId}")]
         public async Task<IActionResult>RemoveFromCart(int productId)
         {
             try
             {
                 int userId= GetUserId();
                 var res = await _cartService.RemoveFromCart(userId, productId);
+                if (res == null)
+                {
+                    return NotFound($"Product with ID {productId} not found in the cart.");
+                }
                 return Ok(res);
 
             }
@@ -75,14 +83,18 @@ namespace FurniHub.Controllers
             
         }
 
-        [Authorize]
-        [HttpPut("Increment_Quantity")]
+        [Authorize(Roles = "user")]
+        [HttpPut("items/{productId}/increase")]
         public async Task<IActionResult>IncreaseQuantity(int productId)
         {
             try
             {
                 int userId= GetUserId();
                 var res = await _cartService.IncreaseQuantity(userId, productId);
+                if (res == null)
+                {
+                    return NotFound($"Product with ID {productId} not found in the cart.");
+                }
                 return Ok(res);
             }catch(Exception ex)
             {
@@ -91,14 +103,18 @@ namespace FurniHub.Controllers
             
         }
 
-        [Authorize]
-        [HttpPut("Decrement_Quantity")]
+        [Authorize(Roles = "user")]
+        [HttpPut("items/{productId}/decrease")]
         public async Task<IActionResult>DecreaseQuantity(int productId)
         {
             try
             {
                 int userId=GetUserId();
                 var res = await _cartService.DecreaseQuantity(userId, productId);
+                if (res == null)
+                {
+                    return NotFound($"Product with ID {productId} not found in the cart.");
+                }
                 return Ok(res);
 
             }

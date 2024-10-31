@@ -22,7 +22,7 @@ namespace FurniHub.Services.AuthServices
             _mapper = mapper;
             _configuration = configuration;
         }
-        public async Task<string> Register(UserRegisterDTO userDTo)
+        public async Task<bool> Register(UserRegisterDTO userDTo)
         {
             try
             {
@@ -33,7 +33,7 @@ namespace FurniHub.Services.AuthServices
                 var existingUser = _context.Users.FirstOrDefault(u => u.Email == userDTo.Email);
                 if (existingUser != null)
                 {
-                    return "user already exist";
+                    return false;
 
                 }
                 string hashPassword=BCrypt.Net.BCrypt.HashPassword(userDTo.Password);
@@ -41,7 +41,7 @@ namespace FurniHub.Services.AuthServices
                 user.Password = hashPassword;
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
-                return "registered successfully";
+                return true;
             }
             catch(DbUpdateException ex)
             {
@@ -49,22 +49,33 @@ namespace FurniHub.Services.AuthServices
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                throw new Exception(ex.Message);
 
             }
         }
         public async Task<string> Login(UserLoginDTO userDTO)
         {
-           var user=await _context.Users.FirstOrDefaultAsync(u=>u.Email== userDTO.Email);
-            if(user==null || !validatePassword(userDTO.Password,user.Password))
+            try
             {
-                throw new Exception("invalid email or password");
-            }else if (user.IsBlocked)
-            {
-                throw new Exception("user is blocked");
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userDTO.Email);
+                if (user == null || !validatePassword(userDTO.Password, user.Password))
+                {
+                    throw new Exception("invalid email or password");
+                }
+                else if (user.IsBlocked)
+                {
+                    throw new Exception("user is blocked");
+                }
+                var token = GenerateJwtToken(user);
+                return token;
+                
+
             }
-            var token = GenerateJwtToken(user);
-            return token;
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+          
         }
         private string GenerateJwtToken(User user)
         {

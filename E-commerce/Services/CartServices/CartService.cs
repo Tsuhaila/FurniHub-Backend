@@ -51,7 +51,7 @@ namespace FurniHub.Services.CartServices
                 }
             catch (Exception ex)
             {
-                throw new Exception("something went wrong",ex);
+                throw new Exception(ex.Message);
             }
         }
         public async Task<string> AddToCart(int userId, int productId)
@@ -102,8 +102,7 @@ namespace FurniHub.Services.CartServices
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                return "something went wrong";
+                throw new Exception(ex.Message);
             }
         }
 

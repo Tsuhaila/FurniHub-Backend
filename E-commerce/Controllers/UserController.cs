@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FurniHub.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/users")]
 
     [ApiController]
     public class UserController : ControllerBase
@@ -17,7 +17,7 @@ namespace FurniHub.Controllers
             
         }
         [Authorize(Roles ="admin")]
-        [HttpGet("All-Users")]
+        [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
             try
@@ -32,12 +32,16 @@ namespace FurniHub.Controllers
         }
 
         [Authorize(Roles ="admin")]
-        [HttpGet("User/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
             try
             {
                 var user =await _userService.GetUserById(id);
+                if (user == null)
+                {
+                    return NotFound($"User with ID {id} not found.");
+                }
                 return Ok(user);
             }
             catch (Exception ex)
@@ -47,12 +51,16 @@ namespace FurniHub.Controllers
         }
 
         [Authorize(Roles ="admin")]
-        [HttpPatch("Block-Unblock/{id}")]
+        [HttpPatch("{id}/block-unblock")]
         public async Task<IActionResult>BlockOrUnblockUser(int id)
         {
             try
             {
                 var res=await _userService.BlockOrUnblockUser(id);
+                if (res == null)
+                {
+                    return NotFound($"User with ID {id} not found.");
+                }
                 return Ok(res);
 
             }catch(Exception ex)

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FurniHub.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/categories")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
@@ -16,7 +16,7 @@ namespace FurniHub.Controllers
             _categoryService = categoryService;
             
         }
-        [HttpGet("All-Categories")]
+        [HttpGet]
         public async Task<IActionResult> GetAllCategories()
         {
             try
@@ -31,14 +31,14 @@ namespace FurniHub.Controllers
             }
         }
 
-        [Authorize(Roles ="Admin")]
-        [HttpPost("Add-Category")]
+        [Authorize(Roles ="admin")]
+        [HttpPost]
         public async Task<IActionResult>AddCategory(CategoryRequestDTO categoryDTO)
         {
             try
             {
                 var res=await _categoryService.CreateCategory(categoryDTO);
-                return Ok(res);
+                return CreatedAtAction(nameof(GetAllCategories), res);
 
             }
             catch (Exception ex)
@@ -47,13 +47,17 @@ namespace FurniHub.Controllers
             }
         }
 
-        [Authorize(Roles ="Admin")]
-        [HttpPut("Update-Category/{id}")]
+        [Authorize(Roles ="admin")]
+        [HttpPut("{id}")]
         public async Task<IActionResult>UpdateCategory(int id,CategoryRequestDTO categoryDTO)
         {
             try
             {
                 var res=await _categoryService.UpdateCategory(id, categoryDTO);
+                if (res == null)
+                {
+                    return NotFound($"Category with ID {id} not found.");
+                }
                 return Ok(res);
             }
             catch (Exception ex)
@@ -62,13 +66,17 @@ namespace FurniHub.Controllers
             }
         }
 
-        [Authorize(Roles ="Admin")]
-        [HttpDelete("Delete-Category/{id}")]
+        [Authorize(Roles ="admin")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult>DeleteCategory(int id)
         {
             try
             {
                 var res=await _categoryService.DeleteCategory(id);
+                if (res == null)
+                {
+                    return NotFound($"Category with ID {id} not found.");
+                }
                 return Ok(res);
 
             }

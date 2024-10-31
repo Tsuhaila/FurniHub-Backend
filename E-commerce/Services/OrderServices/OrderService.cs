@@ -103,7 +103,7 @@ namespace FurniHub.Services.OrderServices
 
                 };
 
-                _context.Order.Add(order);
+                _context.Orders.Add(order);
                 _context.Cart.Remove(cart);
                 await _context.SaveChangesAsync();
                 return true;
@@ -120,7 +120,7 @@ namespace FurniHub.Services.OrderServices
         {
             try
             {
-                var order = await _context.Order.FindAsync(orderId);
+                var order = await _context.Orders.FindAsync(orderId);
                 if (order != null)
                 {
                     order.OrderStatus = orderDetails.OrderStatus;
@@ -140,7 +140,7 @@ namespace FurniHub.Services.OrderServices
         {
             try
             {
-                var orders = await _context.Order
+                var orders = await _context.Orders
                     .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                     .Where(o => o.userId == userId).ToListAsync();
@@ -180,7 +180,7 @@ namespace FurniHub.Services.OrderServices
         {
             try
             {
-                var orders = _context.Order.Include(o => o.OrderItems).ToList();
+                var orders = _context.Orders.Include(o => o.OrderItems).ToList();
                 if (orders != null)
                 {
                     var orderDetails = orders.Select(o => new AdminOrderResponseDTO
@@ -227,7 +227,7 @@ namespace FurniHub.Services.OrderServices
         {
             try
             {
-                var order = await _context.Order.Include(o => o.OrderItems).ToListAsync();
+                var order = await _context.Orders.Include(o => o.OrderItems).ToListAsync();
                 if (order != null)
                 {
                     var orederedItems = order.SelectMany(o => o.OrderItems);

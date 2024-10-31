@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace FurniHub.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/wishlist")]
     [ApiController]
     public class WishlistController : ControllerBase
     {
@@ -16,14 +16,14 @@ namespace FurniHub.Controllers
             _wishlistService = wishlistService;
             
         }
-        [Authorize]
-        [HttpPost("Add-Remove-items")]
-        public async Task<IActionResult>AddOrRemoveItems(int productId)
+        [Authorize(Roles = "user")]
+        [HttpPost("items")]
+        public async Task<IActionResult>ToggleWishlistItem(int productId)
         {
             try
             {
                 var userId = GetUserId();
-                var res = await _wishlistService.AddOrRemoveWishlist(userId, productId);
+                var res = await _wishlistService.ToggleWishlistItem(userId, productId);
                 return Ok(res);
 
             }
@@ -33,8 +33,8 @@ namespace FurniHub.Controllers
             }
         }
 
-        [Authorize]
-        [HttpGet("Get-wishlist")]
+        [Authorize(Roles = "user")]
+        [HttpGet]
         public async Task<IActionResult> GetWishlist()
         {
             try

@@ -58,7 +58,7 @@ namespace FurniHub.Services.UserServices
                 var user=await _context.Users.FindAsync(id);
                 if (user == null)
                 {
-                    return "user not found";
+                    throw new Exception( "user not found");
                 }
                 user.IsBlocked=!user.IsBlocked;
                 await _context.SaveChangesAsync();

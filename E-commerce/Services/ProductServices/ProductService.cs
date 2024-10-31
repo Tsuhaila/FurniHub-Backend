@@ -22,9 +22,7 @@ namespace FurniHub.Services.ProductServices
             _context = context;
             _mapper = mapper;
             _webHostEnvironment = webHostEnvironment;
-            _HostUrl = _configuration["HostUrl:Url"];
-
-            
+            _HostUrl = _configuration["HostUrl:Url"];            
         }
         public async Task<List<ProductResponseDTO>> GetAllProducts()
         {
@@ -244,6 +242,7 @@ namespace FurniHub.Services.ProductServices
                         Image = _HostUrl + p.Image,
                         Price = p.Price,
                         OfferPrice = p.OfferPrice,
+                        Quantity=p.Quantity,
 
                     }).ToList();
 
@@ -256,12 +255,12 @@ namespace FurniHub.Services.ProductServices
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<List<ProductResponseDTO>>ProductPagination(int pageno,int size)
+        public async Task<List<ProductResponseDTO>>ProductPagination(int page,int limit)
         {
             try
             {
                 var products = await _context.Products.Include(p => p.Category)
-                    .Skip((pageno - 1) * size).Take(size).ToListAsync();
+                    .Skip((page - 1) * limit).Take(limit).ToListAsync();
                 if (products != null)
                 {
                     return products.Select(p => new ProductResponseDTO
@@ -273,6 +272,7 @@ namespace FurniHub.Services.ProductServices
                         Image = _HostUrl + p.Image,
                         Price = p.Price,
                         OfferPrice = p.OfferPrice,
+                        Quantity= p.Quantity,
 
                     }).ToList();
 

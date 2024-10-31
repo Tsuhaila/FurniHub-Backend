@@ -4,7 +4,7 @@ namespace FurniHub.Services.WishlistServices
 {
     public interface IWishlistService
     {
-        Task<string> AddOrRemoveWishlist(int userId, int productId);
+        Task<string> ToggleWishlistItem(int userId, int productId);
         Task<List<WishlistResponseDTO>> GetWishlist(int userId);
     }
 }

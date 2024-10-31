@@ -34,10 +34,10 @@ namespace FurniHub.Services.CategoryServices
         {
             try
             {
-                var product = _context.Categories.FirstOrDefault(c => c.Id == id);
-                if (product != null)
+                var category = _context.Categories.FirstOrDefault(c => c.Id == id);
+                if (category != null)
                 {
-                    product.Name = categoryDTO.Name;
+                    category.Name = categoryDTO.Name;
                 }
                 await _context.SaveChangesAsync();
                 return "category updated";

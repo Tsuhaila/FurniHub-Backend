@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace FurniHub.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/orders")]
     [ApiController]
     public class OrderController : ControllerBase
     {
@@ -20,7 +20,7 @@ namespace FurniHub.Controllers
         }
 
         [Authorize]
-        [HttpPost("Razor-Order-create")]
+        [HttpPost("razor")]
         public async Task<IActionResult> RazorOrderCreate(long price)
         {
             try
@@ -39,7 +39,7 @@ namespace FurniHub.Controllers
         }
 
         [Authorize]
-        [HttpPost("Razor-payment")]
+        [HttpPost("payment")]
         public IActionResult RazorPayment(RazorPayDTO razorPayDTO)
         {
             try
@@ -60,7 +60,7 @@ namespace FurniHub.Controllers
 
 
         [Authorize]
-        [HttpPost("place-order")]
+        [HttpPost]
         public async Task<IActionResult> PlaceOrder(OrderRequestDTO orderRequestDTO)
         {
             try
@@ -84,8 +84,8 @@ namespace FurniHub.Controllers
             }
         }
 
-        [Authorize(Roles ="Admin")]
-        [HttpPut("update-order-status")]
+        [Authorize(Roles ="admin")]
+        [HttpPut("{orderId}/status")]
         public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromBody] AdminOrderResponseDTO orderDTO)
         {
             try
@@ -102,7 +102,7 @@ namespace FurniHub.Controllers
         }
 
         [Authorize]
-        [HttpGet("Get-order-details")]
+        [HttpGet]
         public async Task<IActionResult> GetOrderDetails()
         {
             try
@@ -118,8 +118,8 @@ namespace FurniHub.Controllers
             }
         }
 
-        [Authorize(Roles ="Admin")]
-        [HttpGet("get-order-details-for-Admin")]
+        [Authorize(Roles ="admin")]
+        [HttpGet("admin")]
         public async Task<IActionResult> GetOrderDetailsForAdmin()
         {
             try
@@ -133,8 +133,8 @@ namespace FurniHub.Controllers
             }
         }
 
-        [Authorize(Roles ="Admin")]
-        [HttpGet("Total-products-purchased")]
+        [Authorize(Roles ="admin")]
+        [HttpGet("admin/total-products")]
         public async Task<IActionResult> TotalProductsPurchased()
         {
             try
@@ -149,8 +149,8 @@ namespace FurniHub.Controllers
             }
         }
 
-        [Authorize(Roles ="Admin")]
-        [HttpGet("Get-Total-Revenue")]
+        [Authorize(Roles ="admin")]
+        [HttpGet("admin/revenue")]
         public async Task<IActionResult> GetTotalRevenue()
         {
             try

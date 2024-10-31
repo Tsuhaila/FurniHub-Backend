@@ -3,10 +3,11 @@ using FurniHub.Services.AuthServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FurniHub.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -22,7 +23,12 @@ namespace FurniHub.Controllers
             try
             {
                 var res = await _authService.Register(userDTO);
-                return Ok(res);
+                if (!res)
+                {
+                    return Conflict("user already exist");
+                }
+                return Ok("registered successfully");
+               
             }
             catch (Exception ex)
             {
@@ -41,15 +47,15 @@ namespace FurniHub.Controllers
                     HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddHours(1)
+                    Expires = DateTime.UtcNow.AddHours(3)
                 };
                 Response.Cookies.Append("AuthToken",token,cookiesOption);
-                return Ok("loggined successfully");
+                return Ok("logged in successfully");
 
             }
             catch (Exception ex)
             {
-                return Unauthorized(new { Message = "Login failed", Error = ex.Message });
+                return StatusCode(500,ex.Message );
 
 
             }

@@ -14,26 +14,27 @@ namespace FurniHub.Services.WishlistServices
             _context = context;
             _mapper = mapper;           
         }
-        public async Task<string>AddOrRemoveWishlist(int userId,int productId)
+        public async Task<string>ToggleWishlistItem(int userId,int productId)
         {
             try
             {
-                var isExist = await _context.Wishlist.Include(w => w.Products)
-               .FirstOrDefaultAsync(p => p.UserId == userId && p.ProductId == productId);
-                if (isExist == null)
+                var existingItem = await _context.Wishlist
+                    .FirstOrDefaultAsync(w => w.UserId == userId && w.ProductId == productId);
+                if (existingItem == null)
                 {
-                    WishlistRequestDTO requestDTO = new WishlistRequestDTO
+                   
+                    var newWishlistItem = _mapper.Map<Wishlist>(new WishlistRequestDTO
                     {
                         ProductId = productId,
                         UserId = userId,
-                    };
-                    var newWishlist = _mapper.Map<Wishlist>(requestDTO);
-                    await _context.AddAsync(newWishlist);
+                    });
+
+                    await _context.Wishlist.AddAsync(newWishlistItem);
                     await _context.SaveChangesAsync();
                     return "item added to wishlist";
 
                 }
-                _context.Wishlist.Remove(isExist);
+                _context.Wishlist.Remove(existingItem);
                 await _context.SaveChangesAsync();
                 return "item removed from wishlist";
 
@@ -47,11 +48,13 @@ namespace FurniHub.Services.WishlistServices
         {
             try
             {
-                var items = await _context.Wishlist.Include(w => w.Products)
-                .ThenInclude(p => p.Category).Where(w => w.UserId == userId).ToListAsync();
-                if (items != null)
-                {
-                    var Wishlist = items.Select(i => new WishlistResponseDTO
+                var items = await _context.Wishlist
+                    .Include(w => w.Products)
+                    .ThenInclude(p => p.Category)
+                    .Where(w => w.UserId == userId)
+                    .ToListAsync();
+                
+                    return items.Select(i => new WishlistResponseDTO
                     {
                         Id = i.Id,
                         ProductName = i.Products.Name,
@@ -59,13 +62,7 @@ namespace FurniHub.Services.WishlistServices
                         Price = i.Products.Price,
                         ProductImage = i.Products.Image,
                         ProductDescription = i.Products.Description,
-                    }).ToList();
-                    return Wishlist;
-                }
-                else
-                {
-                    return new List<WishlistResponseDTO>();
-                }
+                    }).ToList();             
             }
             catch (Exception ex)
             {

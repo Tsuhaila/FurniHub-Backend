@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FurniHub.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/products")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -17,7 +17,7 @@ namespace FurniHub.Controllers
 
         }
 
-        [HttpGet("All-Products")]
+        [HttpGet]
         public async Task<IActionResult> GetAllProducts()
         {
             try
@@ -34,12 +34,16 @@ namespace FurniHub.Controllers
 
         }
 
-        [HttpGet("Product-By/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetProductById(int id)
         {
             try
             {
                 var product = await _productService.GetProductById(id);
+                if (product == null)
+                {
+                    return NotFound($"Product with ID {id} not found.");
+                }
                 return Ok(product);
 
             }
@@ -50,7 +54,7 @@ namespace FurniHub.Controllers
 
         }
 
-        [HttpGet("Products-By-CategoryId")]
+        [HttpGet("category/{categoryId}")]
         public async Task<IActionResult> GetProductsByCategory(int categoryId)
         {
             try
@@ -65,7 +69,7 @@ namespace FurniHub.Controllers
             }
         }
 
-        [HttpGet("Products-By-CategoryName")]
+        [HttpGet("category-name/{categoryName}")]
         public async Task<IActionResult> GetProductsByCategoryName(string categoryName)
         {
             try
@@ -81,14 +85,14 @@ namespace FurniHub.Controllers
 
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> AddProduct([FromForm] ProductRequestDTO productDTO, IFormFile image)
         {
             try
             {
-                await _productService.CreateProduct(productDTO, image);
-                return Ok("added successfully");
+                var res= await _productService.CreateProduct(productDTO, image);
+                return Ok(res);
             }
             catch (Exception ex)
             {
@@ -97,14 +101,18 @@ namespace FurniHub.Controllers
 
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPut]
+        [Authorize(Roles = "admin")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductRequestDTO productDTO, IFormFile image)
         {
             try
             {
-                await _productService.UpdateProduct(id, productDTO, image);
-                return Ok("updated successfully");
+                var res=await _productService.UpdateProduct(id, productDTO, image);
+                if (res == null)
+                {
+                    return NotFound($"Product with ID {id} not found.");
+                }
+                return Ok(res);
             }
             catch (Exception ex)
             {
@@ -112,23 +120,27 @@ namespace FurniHub.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             try
             {
-                await _productService.DeleteProduct(id);
-                return Ok("deleted succefully");
+                var res=await _productService.DeleteProduct(id);
+                if (res == null)
+                {
+                    return NotFound($"Product with ID {id} not found.");
+                }
+                return Ok(res);
 
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                return StatusCode(500,ex.Message);
             }
 
         }
-        [HttpGet("Search-products")]
+        [HttpGet("search")]
         public async Task<IActionResult> SearchProducts(string search)
         {
             try
@@ -142,12 +154,12 @@ namespace FurniHub.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpGet("paginated-products")]
-        public async Task<IActionResult> ProductPagination(int pageno,int size)
+        [HttpGet("paginated")]
+        public async Task<IActionResult> ProductPagination(int page,int limit)
         {
             try
             {
-                var res = await _productService.ProductPagination(pageno, size);
+                var res = await _productService.ProductPagination(page, limit);
                 return Ok(res);
 
             }catch(Exception ex)
