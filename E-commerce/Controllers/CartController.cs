@@ -1,8 +1,11 @@
-﻿using FurniHub.Services.CartServices;
+﻿using FurniHub.Models.ApiResponseModel;
+using FurniHub.Models.CartModels.DTOs;
+using FurniHub.Services.CartServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Security.Claims;
 
 namespace FurniHub.Controllers
@@ -26,12 +29,18 @@ namespace FurniHub.Controllers
             {
                 int userId = GetUserId();             
                 var cartItems=await _cartService.GetCartItems(userId);
-                return Ok(cartItems);
+                if (cartItems.Count == 0)
+                {
+                    return Ok(new APIResponse<IEnumerable<CartResponseDTO>>(HttpStatusCode.BadRequest,false, "cart is empty", cartItems));
+
+                }
+                return Ok(new APIResponse<IEnumerable<CartResponseDTO>>(HttpStatusCode.OK, true, "fetched items successfully", cartItems));
+
 
             }
             catch (Exception ex)
             {
-                return StatusCode(500,ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
 
             }
            
@@ -45,16 +54,20 @@ namespace FurniHub.Controllers
             {
                 int userId= GetUserId();
                 var res= await _cartService.AddToCart(userId,productId);
-                if (res == null)
+
+                if (res == true)
                 {
-                    return NotFound($"Product with ID {productId} not found.");
+                    return Ok(new APIResponse<bool>(HttpStatusCode.OK, true, "item added to cart", res));
                 }
-                return CreatedAtAction(nameof(GetCartItems), res);
+               
                 
+                 return BadRequest(new APIResponse<bool>(HttpStatusCode.BadRequest, false, "item alteady exist", res));
+                
+
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
 
             }
          
@@ -68,16 +81,18 @@ namespace FurniHub.Controllers
             {
                 int userId= GetUserId();
                 var res = await _cartService.RemoveFromCart(userId, productId);
-                if (res == null)
+                if (res == false)
                 {
-                    return NotFound($"Product with ID {productId} not found in the cart.");
+                    return BadRequest(new APIResponse<bool>(HttpStatusCode.OK, false, "item not found in cart", res));
+                    
                 }
-                return Ok(res);
+                return Ok(new APIResponse<bool>(HttpStatusCode.OK, true, "item removed from cart", res));
+
 
             }
             catch(Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
 
             
@@ -91,14 +106,15 @@ namespace FurniHub.Controllers
             {
                 int userId= GetUserId();
                 var res = await _cartService.IncreaseQuantity(userId, productId);
-                if (res == null)
+                if (res == false)
                 {
-                    return NotFound($"Product with ID {productId} not found in the cart.");
+                    return BadRequest(new APIResponse<string>(HttpStatusCode.BadRequest,false, "reached maximum quantity", "reached maximum quantity"));
                 }
-                return Ok(res);
-            }catch(Exception ex)
+                return Ok(new APIResponse<string>(HttpStatusCode.OK, true,"Quantity increased","quantity increased"));
+            }
+            catch(Exception ex)
             {
-                return StatusCode(500,ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
             
         }
@@ -111,16 +127,17 @@ namespace FurniHub.Controllers
             {
                 int userId=GetUserId();
                 var res = await _cartService.DecreaseQuantity(userId, productId);
-                if (res == null)
+                if (res == false)
                 {
-                    return NotFound($"Product with ID {productId} not found in the cart.");
+                    return BadRequest(new APIResponse<string>(HttpStatusCode.BadRequest, false, "reached minimum quantity", "reached minimum quantity"));
                 }
-                return Ok(res);
+                return Ok(new APIResponse<string>(HttpStatusCode.OK, true, "Quantity decreased", "quantity decreased"));
+
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return StatusCode(500,ex.Message) ;
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
         }
         private int GetUserId()

@@ -53,7 +53,7 @@ namespace FurniHub.Services.AuthServices
 
             }
         }
-        public async Task<string> Login(UserLoginDTO userDTO)
+        public async Task<LoginResponseDTO> Login(UserLoginDTO userDTO)
         {
             try
             {
@@ -67,7 +67,17 @@ namespace FurniHub.Services.AuthServices
                     throw new Exception("user is blocked");
                 }
                 var token = GenerateJwtToken(user);
-                return token;
+                int userId=Convert.ToInt32(user.Id);
+                return new LoginResponseDTO
+                {
+                    Id = userId,
+                    Name = user.UserName,
+                    Role = user.Role,
+                    Token = token,
+                    IsBlocked=user.IsBlocked
+                };
+                
+               
                 
 
             }

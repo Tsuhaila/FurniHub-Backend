@@ -1,8 +1,11 @@
-﻿using FurniHub.Models.ProductModels.DTOs;
+﻿using FurniHub.Models.ApiResponseModel;
+using FurniHub.Models.ProductModels.DTOs;
+using FurniHub.Models.UserModels;
 using FurniHub.Services.ProductServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace FurniHub.Controllers
 {
@@ -23,12 +26,12 @@ namespace FurniHub.Controllers
             try
             {
                 var products = await _productService.GetAllProducts();
-                return Ok(products);
+                return Ok(new APIResponse<IEnumerable<ProductResponseDTO>>(HttpStatusCode.OK, true, "fetch products successfully", products));
 
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
 
 
@@ -42,14 +45,15 @@ namespace FurniHub.Controllers
                 var product = await _productService.GetProductById(id);
                 if (product == null)
                 {
-                    return NotFound($"Product with ID {id} not found.");
+                    return NotFound(new APIResponse<ProductResponseDTO>(HttpStatusCode.NotFound, false, "product with ID {id} not found.", product));
                 }
-                return Ok(product);
+                return Ok(new APIResponse<ProductResponseDTO>(HttpStatusCode.OK, true, "fetched product with ID {id}", product));
+
 
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
 
         }
@@ -60,12 +64,12 @@ namespace FurniHub.Controllers
             try
             {
                 var products = await _productService.GetProductsByCategory(categoryId);
-                return Ok(products);
+                return Ok(new APIResponse<IEnumerable<ProductResponseDTO>>(HttpStatusCode.OK, true, "fetch products by category id", products));
 
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
         }
 
@@ -75,12 +79,12 @@ namespace FurniHub.Controllers
             try
             {
                 var products = await _productService.GetProductsByCategoryName(categoryName);
-                return Ok(products);
+                return Ok(new APIResponse<IEnumerable<ProductResponseDTO>>(HttpStatusCode.OK, true, "fetch products by category", products));
 
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
 
         }
@@ -92,11 +96,11 @@ namespace FurniHub.Controllers
             try
             {
                 var res= await _productService.CreateProduct(productDTO, image);
-                return Ok(res);
+                return Ok(new APIResponse<string>(HttpStatusCode.OK, true, "product added",res));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
 
         }
@@ -108,15 +112,12 @@ namespace FurniHub.Controllers
             try
             {
                 var res=await _productService.UpdateProduct(id, productDTO, image);
-                if (res == null)
-                {
-                    return NotFound($"Product with ID {id} not found.");
-                }
-                return Ok(res);
+   
+                return Ok(new APIResponse<string>(HttpStatusCode.OK, true, "products updated", res));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
         }
 
@@ -127,16 +128,12 @@ namespace FurniHub.Controllers
             try
             {
                 var res=await _productService.DeleteProduct(id);
-                if (res == null)
-                {
-                    return NotFound($"Product with ID {id} not found.");
-                }
-                return Ok(res);
+                return Ok(new APIResponse<string>(HttpStatusCode.OK, true, "products deleted", res));
 
             }
             catch (Exception ex)
             {
-                return StatusCode(500,ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
 
         }
@@ -146,12 +143,11 @@ namespace FurniHub.Controllers
             try
             {
                 var res = await _productService.SearchProducts(search);
-                return Ok(res);
-
+                return Ok(new APIResponse<IEnumerable<ProductResponseDTO>>(HttpStatusCode.OK, true, "fetched searched products", res));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
         }
         [HttpGet("paginated")]
@@ -160,11 +156,12 @@ namespace FurniHub.Controllers
             try
             {
                 var res = await _productService.ProductPagination(page, limit);
-                return Ok(res);
+                return Ok(new APIResponse<IEnumerable<ProductResponseDTO>>(HttpStatusCode.OK, true, "paginated", res));
 
-            }catch(Exception ex)
+            }
+            catch(Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
         }
     }

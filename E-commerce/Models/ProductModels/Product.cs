@@ -22,6 +22,7 @@ namespace FurniHub.Models.ProductModels
         public decimal OfferPrice { get; set; }
         [Required(ErrorMessage ="category id is required.")]
         public int CategoryId { get; set; }
+        [Required]
         public int Quantity { get; set; }
         [Range(0,5,ErrorMessage ="Rating must be between 0 and 5.")]
         public int Rating { get; set; }

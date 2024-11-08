@@ -15,15 +15,13 @@ namespace FurniHub.Models.OrderModels.DTOs
         public string CustomerPhone { get; set; }
 
         public string HomeAddress { get; set; }
-
-        public string OrderId { get; set; }
         public string Orderstring { get; set; }
 
-        public string OrderStatus { get; set; }
-
         public string TransactionId { get; set; }
+        public long TotalAmount { get; set; }
 
         public DateTime OrderDate { get; set; }
+        public List<OrderResponseDTO> orderDetails {get; set;}
 
         public List<CartResponseDTO> ProductsPurchased { get; set; }
 

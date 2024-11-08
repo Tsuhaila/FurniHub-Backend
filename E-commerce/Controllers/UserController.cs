@@ -1,7 +1,12 @@
-﻿using FurniHub.Services.UserServices;
+﻿using FurniHub.Models.ApiResponseModel;
+using FurniHub.Models.CartModels.DTOs;
+using FurniHub.Models.CartModels;
+using FurniHub.Services.UserServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using FurniHub.Models.UserModels;
 
 namespace FurniHub.Controllers
 {
@@ -23,10 +28,12 @@ namespace FurniHub.Controllers
             try
             {
                 var users = await _userService.GetUsers();
-                return Ok(users);
-            }catch(Exception ex)
+                return Ok(new APIResponse<IEnumerable<OutPutUser>>(HttpStatusCode.OK, true, "fetch users successfully", users));
+
+            }
+            catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
                    
         }
@@ -40,13 +47,13 @@ namespace FurniHub.Controllers
                 var user =await _userService.GetUserById(id);
                 if (user == null)
                 {
-                    return NotFound($"User with ID {id} not found.");
+                    return NotFound(new APIResponse<OutPutUser>(HttpStatusCode.NotFound, false, "User with ID {id} not found.",user));
                 }
-                return Ok(user);
+                return Ok(new APIResponse<OutPutUser>(HttpStatusCode.OK, true, "User with ID {id} fetched successfully", user));
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError,false, ex.Message,null));
             }
         }
 
@@ -57,15 +64,18 @@ namespace FurniHub.Controllers
             try
             {
                 var res=await _userService.BlockOrUnblockUser(id);
-                if (res == null)
+                if (res==true)
                 {
-                    return NotFound($"User with ID {id} not found.");
+                    return Ok(new APIResponse<bool>(HttpStatusCode.OK, true, "user is blocked", res));
                 }
-                return Ok(res);
+                else
+                {
+                    return Ok(new APIResponse<bool>(HttpStatusCode.OK, true, "user is unblocked", res));
+                }
 
             }catch(Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new APIResponse<string>(HttpStatusCode.InternalServerError, false, ex.Message, null));
             }
         }
       

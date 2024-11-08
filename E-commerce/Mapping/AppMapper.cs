@@ -25,8 +25,9 @@ namespace FurniHub.Mapping
             CreateMap<Order,OrderResponseDTO>().ReverseMap();
             CreateMap<Wishlist,WishlistResponseDTO>().ReverseMap();
             CreateMap<Wishlist, WishlistRequestDTO>().ReverseMap();
-            
-            
+          
+
+
         }
     }
 }

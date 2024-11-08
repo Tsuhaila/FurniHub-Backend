@@ -25,11 +25,9 @@ namespace FurniHub.Models.OrderModels
         [Required]
         public string? OrderString { get; set; }
         [Required]
-        public string? OrderStatus { get; set; }
-        [Required]
         public string? TransactionId { get; set; }
         [Required]
-        public string orderId { get; set; }
+        public long TotalAmount { get; set; }
         public virtual User? User { get; set; }
         public virtual List<OrderItem>? OrderItems { get; set; }
 

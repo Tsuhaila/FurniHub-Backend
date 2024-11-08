@@ -16,7 +16,7 @@ namespace FurniHub.Controllers
         public OrderController(IOrderService orderService)
         {
             _orderService = orderService;
-            
+
         }
 
         [Authorize]
@@ -25,11 +25,11 @@ namespace FurniHub.Controllers
         {
             try
             {
-                if(price<=0 || price > 100000)
+                if (price <= 0 || price > 100000)
                 {
                     return BadRequest("Enter a valid amount!");
                 }
-                var orderId=await _orderService.RazorOrderCreate(price);
+                var orderId = await _orderService.RazorOrderCreate(price);
                 return Ok(orderId);
             }
             catch (Exception ex)
@@ -74,7 +74,7 @@ namespace FurniHub.Controllers
                 {
                     return BadRequest();
                 }
-                var res =await  _orderService.CreateOrder(userId, orderRequestDTO);
+                var res = await _orderService.CreateOrder(userId, orderRequestDTO);
                 return Ok(res);
 
             }
@@ -84,22 +84,7 @@ namespace FurniHub.Controllers
             }
         }
 
-        [Authorize(Roles ="admin")]
-        [HttpPut("{orderId}/status")]
-        public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromBody] AdminOrderResponseDTO orderDTO)
-        {
-            try
-            {
-                
-                await _orderService.UpdateOrderStatus(orderId, orderDTO);
-                return Ok();
 
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
 
         [Authorize]
         [HttpGet]
@@ -107,7 +92,7 @@ namespace FurniHub.Controllers
         {
             try
             {
-                int userId=GetUserId();
+                int userId = GetUserId();
                 var res = await _orderService.GetOrderDetails(userId);
                 return Ok(res);
 
@@ -118,22 +103,37 @@ namespace FurniHub.Controllers
             }
         }
 
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles = "admin")]
         [HttpGet("admin")]
         public async Task<IActionResult> GetOrderDetailsForAdmin()
         {
             try
             {
-                var res=await _orderService.GetOrderDetailsForAdmin();
+                var res = await _orderService.GetOrderDetailsForAdmin();
+                return Ok(res);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [Authorize(Roles = "admin")]
+        [HttpGet("admin/{userId}")]
+        public async Task<IActionResult> GetOrdersByIdForAdmin(int userId)
+        {
+            try
+            {
+                var res =await _orderService.GetOrdersByIdForAdmin(userId);
                 return Ok(res);
 
             }catch(Exception ex)
             {
-                return StatusCode(500,ex.Message);  
+                return StatusCode(500, ex.Message);
             }
         }
 
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles = "admin")]
         [HttpGet("admin/total-products")]
         public async Task<IActionResult> TotalProductsPurchased()
         {
@@ -149,18 +149,19 @@ namespace FurniHub.Controllers
             }
         }
 
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles = "admin")]
         [HttpGet("admin/revenue")]
         public async Task<IActionResult> GetTotalRevenue()
         {
             try
             {
-                var res=await _orderService.GetTotalRevenue();
+                var res = await _orderService.GetTotalRevenue();
                 return Ok(res);
 
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                return StatusCode(500,ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
         private int GetUserId()

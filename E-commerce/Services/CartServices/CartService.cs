@@ -2,6 +2,7 @@
 using FurniHub.Models.CartModels.DTOs;
 using FurniHub.Models.ProductModels;
 using Microsoft.EntityFrameworkCore;
+using Razorpay.Api;
 using System;
 
 namespace FurniHub.Services.CartServices
@@ -27,15 +28,12 @@ namespace FurniHub.Services.CartServices
                     .Include(c => c.CartItems)
                     .ThenInclude(ci => ci.Product)
                     .FirstOrDefaultAsync(p => p.UserId == userId);
-                if (user == null)
-                {
-                    return [];
-                }
+              
                 if (user != null)
                 {
                     var cartItems = user.CartItems.Select(ci => new CartResponseDTO
                     {
-                        Id = ci.Id,
+                        Id = ci.ProductId,
                         ProductName = ci.Product.Name,
                         Quantity = ci.Quantity,
                         Price = ci.Product.Price,
@@ -54,16 +52,22 @@ namespace FurniHub.Services.CartServices
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<string> AddToCart(int userId, int productId)
+        public async Task<bool> AddToCart(int userId, int productId)
         {
             try
             {
                 var user = await _context.Users
                     .Include(u => u.Cart)
                     .ThenInclude(c => c.CartItems)
+                    .ThenInclude(ci=>ci.Product)
                     .FirstOrDefaultAsync(u => u.Id == userId);
+                if (user == null)
+                {
+                    throw new Exception("user not found");
+                }
 
                 var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
+            
                 if (product == null) throw new Exception($"product with id {productId} not found");
 
                 if (product != null && user != null)
@@ -81,10 +85,10 @@ namespace FurniHub.Services.CartServices
                     }
 
                 }
-                CartItem?existingCartProduct=user.Cart.CartItems.FirstOrDefault(ci=>ci.ProductId== productId);
+                CartItem?existingCartProduct=user?.Cart?.CartItems.FirstOrDefault(ci=>ci.ProductId== productId);
                 if (existingCartProduct != null)
                 {
-                    existingCartProduct.Quantity++;
+                    return false;
                 }
                 else
                 {
@@ -97,7 +101,7 @@ namespace FurniHub.Services.CartServices
                    _context.CartItems.Add(cartItem);
                 }
                 await _context.SaveChangesAsync();
-                return "item added to cart";
+                return true;
 
             }
             catch (Exception ex)
@@ -106,13 +110,14 @@ namespace FurniHub.Services.CartServices
             }
         }
 
-        public async Task<string> RemoveFromCart(int userId,int productId)
+        public async Task<bool> RemoveFromCart(int userId,int productId)
         {
             try
             {
                 var user = await _context.Users
                     .Include(u => u.Cart)
                     .ThenInclude(c => c.CartItems)
+                    .ThenInclude(ci=>ci.Product)
                     .FirstOrDefaultAsync(u => u.Id == userId);
                 var product = await _context.Products.FirstOrDefaultAsync(p=>p.Id == productId);
 
@@ -123,18 +128,18 @@ namespace FurniHub.Services.CartServices
                     {
                         _context.CartItems.Remove(item);
                         await _context.SaveChangesAsync();
-                        return "item removed from cart";
+                        return true;
                     }
                    
                 }
-                return "something went wrong";
+                return false;
             }
             catch(Exception ex)
             {               
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<string> IncreaseQuantity(int userId,int productId)
+        public async Task<bool> IncreaseQuantity(int userId,int productId)
         {
             try
             {
@@ -149,13 +154,20 @@ namespace FurniHub.Services.CartServices
                     var item = user.Cart.CartItems.FirstOrDefault(ci => ci.ProductId == productId);
                     if (item != null)
                     {
-                        item.Quantity++;
+                        if (item.Quantity < product.Quantity) {
+                            item.Quantity++;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                       
                         await _context.SaveChangesAsync();
-                        return "item Quantity is incremented";
+                        return true;
                     }
                     
                 }
-                return "something went wrong";
+                return false;
 
             }catch(Exception ex)
             {                
@@ -163,7 +175,7 @@ namespace FurniHub.Services.CartServices
             }        
         }
 
-        public async Task<string>DecreaseQuantity(int userId,int productId)
+        public async Task<bool>DecreaseQuantity(int userId,int productId)
         {
             try
             {
@@ -171,21 +183,24 @@ namespace FurniHub.Services.CartServices
                 var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
                 if (user != null && product != null)
                 {
-                    var item = user.Cart.CartItems.FirstOrDefault(ci => ci.ProductId == productId);
+                    var item = user.Cart?.CartItems?.FirstOrDefault(ci => ci.ProductId == productId);
                     if (item != null)
                     {
-                       item.Quantity= item.Quantity >= 1 ? item.Quantity - 1 : item.Quantity;
-                        if (item.Quantity == 0)
+                       if(item.Quantity > 1)
                         {
-                            _context.CartItems.Remove(item);
-                            
-                            
+                            item.Quantity--;
                         }
+                        else
+                        {
+                            return false;
+                        }
+                       
                         await _context.SaveChangesAsync();
-                        return "quantity of item is decreased";
+                       
+                        return true;
                     }
                 }
-                return "something went wrong";
+                return false;
                     
 
             }catch(Exception ex)

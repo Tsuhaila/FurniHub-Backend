@@ -39,10 +39,6 @@ namespace FurniHub
                 .Property(x => x.Role)
                 .HasDefaultValue("user");
 
-            modelBuilder.Entity<Product>()
-                .Property(p => p.Quantity)
-                .HasDefaultValue(1);
-
             modelBuilder.Entity<Category>()
                 .HasMany(c => c.Products)
                 .WithOne(p => p.Category)

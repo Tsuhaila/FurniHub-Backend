@@ -36,6 +36,17 @@ namespace FurniHub
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IWishlistService,WishlistService>();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAnyOrigin", builder =>
+                
+                builder.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
+            });
+           
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -64,6 +75,7 @@ namespace FurniHub
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            app.UseCors("AllowAnyOrigin");
             app.UseMiddleware<JwtTokenMiddleware>();    
 
             app.UseStaticFiles();

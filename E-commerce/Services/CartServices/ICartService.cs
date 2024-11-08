@@ -5,9 +5,9 @@ namespace FurniHub.Services.CartServices
     public interface ICartService
     {
         Task<List<CartResponseDTO>> GetCartItems(int userId);
-        Task<string> AddToCart(int userId,int productId);
-        Task<string> RemoveFromCart(int userId, int ProductId);
-        Task<string> IncreaseQuantity(int userId, int ProductId);
-        Task<string> DecreaseQuantity(int userId, int productId);
+        Task<bool> AddToCart(int userId,int productId);
+        Task<bool> RemoveFromCart(int userId, int ProductId);
+        Task<bool> IncreaseQuantity(int userId, int ProductId);
+        Task<bool> DecreaseQuantity(int userId, int productId);
     }
 }

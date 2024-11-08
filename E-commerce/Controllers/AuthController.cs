@@ -1,8 +1,10 @@
-﻿using FurniHub.Models.UserModels.DTOs;
+﻿using FurniHub.Models.ApiResponseModel;
+using FurniHub.Models.UserModels.DTOs;
 using FurniHub.Services.AuthServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Security.Claims;
 
 namespace FurniHub.Controllers
@@ -41,25 +43,24 @@ namespace FurniHub.Controllers
         {
             try
             {
-                var token=await _authService.Login(userDTO);
+                var user = await _authService.Login(userDTO);
+
                 var cookiesOption = new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = true,
+                    Secure = false,
                     SameSite = SameSiteMode.Strict,
                     Expires = DateTime.UtcNow.AddHours(3)
                 };
-                Response.Cookies.Append("AuthToken",token,cookiesOption);
-                return Ok("logged in successfully");
+                Response.Cookies.Append("AuthToken", user.Token, cookiesOption);
 
-            }
-            catch (Exception ex)
+                var response = new APIResponse<LoginResponseDTO>(HttpStatusCode.OK, true, "logged in successfully", user);
+                return Ok(response);
+
+            }catch (Exception ex)
             {
-                return StatusCode(500,ex.Message );
-
-
+                return StatusCode(500, ex.Message);
             }
-
         }
 
         [Authorize]
@@ -75,7 +76,6 @@ namespace FurniHub.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-
         }
     }
 }

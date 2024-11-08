@@ -38,7 +38,8 @@ namespace FurniHub.Services.ProductServices
                     Category = p.Category.Name,
                     Price = p.Price,
                     OfferPrice = p.OfferPrice,
-                    Quantity = p.Quantity
+                    Quantity = p.Quantity,
+                    CategoryId=p.CategoryId
 
                 }).ToList();
             }
@@ -65,7 +66,9 @@ namespace FurniHub.Services.ProductServices
                         Category = product.Category.Name,
                         Price = product.Price,
                         OfferPrice = product.OfferPrice,
-                        Quantity = product.Quantity
+                        Quantity = product.Quantity,
+                        CategoryId=product.CategoryId
+                        
 
                     };
                 }
@@ -169,9 +172,9 @@ namespace FurniHub.Services.ProductServices
                 await _context.SaveChangesAsync();
                 return "product added";
             }
-            catch (Exception ex)
+            catch (DbUpdateException ex)
             {
-                throw new Exception(ex.Message);
+                throw new Exception(ex.InnerException.Message);
             }
         }
         public async Task<string> UpdateProduct(int id, ProductRequestDTO productDTO, IFormFile image)
@@ -186,6 +189,8 @@ namespace FurniHub.Services.ProductServices
                     product.Price = productDTO.Price;
                     product.OfferPrice = productDTO.OfferPrice;
                     product.CategoryId = productDTO.CategoryId;
+                    product.Quantity = productDTO.Quantity;
+                    
                 }
                 if (image != null && image.Length > 0)
                 {

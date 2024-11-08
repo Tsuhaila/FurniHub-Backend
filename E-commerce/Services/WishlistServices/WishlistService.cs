@@ -9,12 +9,14 @@ namespace FurniHub.Services.WishlistServices
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        public WishlistService(ApplicationDbContext context,IMapper mapper)
+        private readonly string _hostUrl;
+        public WishlistService(ApplicationDbContext context,IMapper mapper,IConfiguration configuration)
         {
             _context = context;
-            _mapper = mapper;           
+            _mapper = mapper;
+            _hostUrl = configuration["HostUrl:Url"];
         }
-        public async Task<string>ToggleWishlistItem(int userId,int productId)
+        public async Task<bool>ToggleWishlistItem(int userId,int productId)
         {
             try
             {
@@ -31,12 +33,12 @@ namespace FurniHub.Services.WishlistServices
 
                     await _context.Wishlist.AddAsync(newWishlistItem);
                     await _context.SaveChangesAsync();
-                    return "item added to wishlist";
+                    return true;
 
                 }
                 _context.Wishlist.Remove(existingItem);
                 await _context.SaveChangesAsync();
-                return "item removed from wishlist";
+                return false;
 
             }
             catch (Exception ex)
@@ -60,8 +62,10 @@ namespace FurniHub.Services.WishlistServices
                         ProductName = i.Products.Name,
                         CategoryName = i.Products.Category.Name,
                         Price = i.Products.Price,
-                        ProductImage = i.Products.Image,
+                        OfferPrice=i.Products.OfferPrice,
+                        ProductImage =_hostUrl+ i.Products.Image,
                         ProductDescription = i.Products.Description,
+                        ProductId = i.Products.Id.ToString()
                     }).ToList();             
             }
             catch (Exception ex)

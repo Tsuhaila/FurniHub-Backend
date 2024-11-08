@@ -19,7 +19,7 @@ namespace FurniHub.Services.UserServices
         {
             try
             {
-                var users=await _context.Users.ToListAsync();
+                var users=await _context.Users.Where(u =>u.Role=="user").ToListAsync();
                 return _mapper.Map<List<OutPutUser>>(users);
                 
 
@@ -51,7 +51,7 @@ namespace FurniHub.Services.UserServices
 
             }
         }
-        public async Task<string>BlockOrUnblockUser(int id)
+        public async Task<bool>BlockOrUnblockUser(int id)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace FurniHub.Services.UserServices
                 }
                 user.IsBlocked=!user.IsBlocked;
                 await _context.SaveChangesAsync();
-                return user.IsBlocked == true ? "user is blocked" : "user is unblocked";
+                return user.IsBlocked ;
 
             }catch(Exception ex)
             {

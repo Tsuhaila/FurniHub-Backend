@@ -9,6 +9,7 @@
         public decimal Price { get; set; }
         public decimal OfferPrice { get; set; }
         public string Category { get; set; }
+        public int CategoryId { get; set; }
         public int Quantity { get; set; } 
       
     }

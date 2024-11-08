@@ -16,6 +16,7 @@ namespace FurniHub.Models.ProductModels.DTOs
         public decimal OfferPrice { get; set; }
         [Required]
         public int CategoryId { get; set; }
+        public int Quantity { get; set; }
         
         
     }

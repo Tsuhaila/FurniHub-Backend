@@ -5,10 +5,10 @@ namespace FurniHub.Models.PaymentModels
     public class RazorPayDTO
     {
         [Required]
-        public string? RazorPayId { get; set; }
+        public string? razorpay_payment_id { get; set; }
         [Required]
-        public string? RazorPayOrdId { get;set; }
+        public string? razorpay_order_id { get;set; }
         [Required]
-        public string? RazorPaySig { get;set;}
+        public string? razorpay_signature { get;set;}
     }
 }

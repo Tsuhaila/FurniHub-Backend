@@ -52,17 +52,17 @@ namespace FurniHub.Services.OrderServices
         public bool RazorPayment(RazorPayDTO razorPayDTO)
         {
             if (razorPayDTO == null ||
-                razorPayDTO.RazorPayId == null ||
-                razorPayDTO.RazorPayOrdId == null ||
-                razorPayDTO.RazorPaySig == null)
+                razorPayDTO.razorpay_payment_id == null ||
+                razorPayDTO.razorpay_order_id == null ||
+                razorPayDTO.razorpay_signature == null)
             {
                 return false;
             }
             RazorpayClient client = new RazorpayClient(_configuration["RazorPay:KeyId"], _configuration["RazorPay:KeySecret"]);
             Dictionary<string, string> parameters = new Dictionary<string, string>();
-            parameters.Add("razorpay_payment_id", razorPayDTO.RazorPayId);
-            parameters.Add("razorpay_order_id", razorPayDTO.RazorPayOrdId);
-            parameters.Add("razorpay_signature", razorPayDTO.RazorPaySig);
+            parameters.Add("razorpay_payment_id", razorPayDTO.razorpay_payment_id);
+            parameters.Add("razorpay_order_id", razorPayDTO.razorpay_order_id);
+            parameters.Add("razorpay_signature", razorPayDTO.razorpay_signature);
 
             Utils.verifyPaymentSignature(parameters);
             return true;
@@ -80,6 +80,10 @@ namespace FurniHub.Services.OrderServices
                     .Include(c => c.CartItems)
                     .ThenInclude(ci => ci.Product)
                     .FirstOrDefaultAsync(u => u.UserId == userId);
+                if (cart == null)
+                {
+                    return false;
+                }
                 var order = new Models.OrderModels.Order
                 {
                     userId = userId,
@@ -89,9 +93,9 @@ namespace FurniHub.Services.OrderServices
                     CustomerCity = orderRequestDTO.CustomerCity,
                     CustomerPhone = orderRequestDTO.CustomerPhone,
                     HomeAddress = orderRequestDTO.HomeAddress,
-                    OrderStatus = orderRequestDTO.OrderStatus,
                     OrderString = orderRequestDTO.OrderString,
                     TransactionId = orderRequestDTO.TransactionId,
+                    TotalAmount = orderRequestDTO.TotalAmount,
                     OrderItems = cart?.CartItems.Select(ci => new OrderItem
                     {
                         ProductId = ci.ProductId,
@@ -102,40 +106,34 @@ namespace FurniHub.Services.OrderServices
 
 
                 };
+                foreach(var cartItem in cart.CartItems)
+                {
+                    var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == cartItem.ProductId);
+                    if (product != null)
+                        if (product.Quantity < cartItem.Quantity)
+                        {
+                           return false;
+                        }
+                    
+                        product.Quantity -= cartItem.Quantity;
+                    
+                }
 
                 _context.Orders.Add(order);
                 _context.Cart.Remove(cart);
+               
                 await _context.SaveChangesAsync();
                 return true;
 
 
             }
-            catch (Exception ex)
+            catch (DbUpdateException ex)
             {
-                throw new Exception(ex.Message);
+                throw new Exception(ex.InnerException.Message);
 
             }
         }
-        public async Task<bool> UpdateOrderStatus(int orderId, AdminOrderResponseDTO orderDetails)
-        {
-            try
-            {
-                var order = await _context.Orders.FindAsync(orderId);
-                if (order != null)
-                {
-                    order.OrderStatus = orderDetails.OrderStatus;
-                    await _context.SaveChangesAsync();
-                    return true;
-
-                }
-                return false;
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
+        
         public async Task<List<OrderResponseDTO>> GetOrderDetails(int userId)
         {
             try
@@ -158,7 +156,7 @@ namespace FurniHub.Services.OrderServices
                             Image = _hostUrl + item.Product.Image,
                             ProductName = item.Product.Name,
                             OrderDate = order.OrderDate,
-                            OrderStatus = order.OrderStatus,
+                            TotalAmount=order.TotalAmount,
                             OrderId = order.OrderString
 
                         };
@@ -180,7 +178,10 @@ namespace FurniHub.Services.OrderServices
         {
             try
             {
-                var orders = _context.Orders.Include(o => o.OrderItems).ToList();
+                var orders = await _context.Orders
+                    .Include(o => o.OrderItems)
+                    .ThenInclude(oi=>oi.Product)
+                    .ToListAsync();
                 if (orders != null)
                 {
                     var orderDetails = orders.Select(o => new AdminOrderResponseDTO
@@ -190,12 +191,18 @@ namespace FurniHub.Services.OrderServices
                         CustomerEmail = o.CustomerEmail,
                         CustomerCity = o.CustomerCity,
                         CustomerPhone = o.CustomerPhone,
-                        OrderId = o.orderId,
                         OrderDate = o.OrderDate,
-                        OrderStatus = o.OrderStatus,
                         Orderstring = o.OrderString,
                         TransactionId = o.TransactionId,
-                        HomeAddress = o.HomeAddress
+                        HomeAddress = o.HomeAddress,
+                        TotalAmount = o.TotalAmount,
+                        orderDetails=o.OrderItems.Select(oi=>new OrderResponseDTO
+                        {
+                            Image = oi.Product != null ? _hostUrl + oi.Product.Image : null,
+                            ProductName = oi.Product?.Name ?? "Unknown Product",
+                            TotalPrice =oi.TotalPrice
+                            
+                        }).ToList()
                     }).ToList();
                     return orderDetails;
 
@@ -208,6 +215,52 @@ namespace FurniHub.Services.OrderServices
                 throw new Exception(ex.Message);
             }
         }
+        public async Task<List<AdminOrderResponseDTO>> GetOrdersByIdForAdmin(int userId)
+        {
+            try
+            {
+                var orders = await _context.Orders
+               .Include(o => o.OrderItems)
+               .ThenInclude(oi => oi.Product)
+               .Where(o => o.userId == userId).ToListAsync();
+                if (orders != null)
+                {
+                    var orderDetails = orders.Select(o => new AdminOrderResponseDTO
+                    {
+                        Id = o.Id,
+                        CustomerName = o.CustomerName,
+                        CustomerEmail = o.CustomerEmail,
+                        CustomerCity = o.CustomerCity,
+                        CustomerPhone = o.CustomerPhone,
+                        OrderDate = o.OrderDate,
+                        Orderstring = o.OrderString,
+                        TransactionId = o.TransactionId,
+                        HomeAddress = o.HomeAddress,
+                        TotalAmount = o.TotalAmount,
+                        orderDetails = o.OrderItems.Select(oi => new OrderResponseDTO
+                        {
+                            Image = oi.Product != null ? _hostUrl + oi.Product.Image : null,
+                            ProductName = oi.Product?.Name ?? "Unknown Product",
+                            TotalPrice = oi.TotalPrice,
+                            Quantity=oi.Quantity
+
+                        }).ToList()
+
+                    }).ToList();
+                    return orderDetails;
+
+                }
+                return new List<AdminOrderResponseDTO>();
+
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+           
+
+        }
+
 
         public async Task<int> TotalProductsPurchased()
         {
